@@ -1,59 +1,150 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Proyecto Laravel con Sail y PostgreSQL
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este proyecto utiliza **Laravel Sail** como entorno de desarrollo basado en Docker y **PostgreSQL** como base de datos.  
+Este README explica cómo ponerlo en marcha en cualquier ordenador (casa, clase, portátil) sin errores.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+# 📦 Requisitos
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Docker Desktop instalado y funcionando
+- Git instalado
+- Composer (solo si NO usas Sail, pero no es necesario)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+# 🚀 Puesta en marcha del proyecto
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 1. Clonar el repositorio
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+git clone https://github.com/<TU-USUARIO>/<TU-REPO>.git
+cd <TU-REPO>
 
-## Laravel Sponsors
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Crear el archivo .env
+``` 
+cp .env.example .env
 
-### Premium Partners
+DB_CONNECTION=pgsql
+DB_HOST=pgsql
+DB_PORT=5432
+DB_DATABASE=etc
+DB_USERNAME=******
+DB_PASSWORD=******
+```
+## Levantar el entorno Docker (Sail)
+```
+./vendor/bin/sail up -d
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Instalar dependencias Laravel
+```
+./vendor/bin/sail composer install
+```
 
-## Contributing
+## Generar la clave de la aplicacion
+``` 
+./vendor/bin/sail artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Reset competo del entrono si algo no funciona.
+```
+./vendor/bin/sail down -v 
+./vendor/bin/sail up -d
+```
 
-## Code of Conduct
+## Acceso a la aplicacion.
+```
+http://localhost
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 🌍 Despliegue gratuito en Railway
 
-## Security Vulnerabilities
+Este proyecto puede desplegarse fácilmente en **Railway**, una plataforma gratuita ideal para estudiantes.  
+Railway permite ejecutar aplicaciones Laravel online sin configurar servidores manualmente.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 🚀 1. Crear cuenta en Railway
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Acceder a: https://railway.app  
+Puedes iniciar sesión con GitHub en un clic.
+
+---
+
+## 📥 2. Crear un nuevo proyecto desde GitHub
+
+1. En Railway, pulsar **New Project**
+2. Seleccionar **Deploy from GitHub Repo**
+3. Elegir este repositorio
+
+Railway clonará el proyecto automáticamente.
+
+---
+
+## 🐘 3. Añadir PostgreSQL
+
+1. Dentro del proyecto Railway, pulsar **Add Plugin**
+2. Seleccionar **PostgreSQL**
+
+Railway generará automáticamente:
+
+- PGHOST
+- PGPORT
+- PGUSER
+- PGPASSWORD
+- PGDATABASE
+- DATABASE_URL
+
+Estos valores se usarán en las variables de entorno.
+
+---
+
+## ⚙️ 4. Configurar variables de entorno
+
+Ir a **Variables** en Railway y añadir:
+
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=<tu clave>
+
+Configurar la base de datos con los valores del plugin PostgreSQL:
+
+DB_CONNECTION=pgsql
+DB_HOST=<PGHOST>
+DB_PORT=<PGPORT>
+DB_DATABASE=<PGDATABASE>
+DB_USERNAME=<PGUSER>
+DB_PASSWORD=<PGPASSWORD>
+
+
+---
+
+## 🔑 5. Generar APP_KEY
+
+En tu ordenador local:
+
+```bash
+php artisan key:generate --show
+Copiar el resultado en Railway → APP_KEY.
+
+---
+## 🏗️ 6. Configurar el comando de inicio.
+ 
+ 
+En Railway → Settings → Start Command, escribir:
+
+php artisan serve --host=0.0.0.0 --port=$PORT
+
+🗄️ 7. Ejecutar migraciones en Railway
+En Railway → pestaña Shell, ejecutar:
+
+php artisan migrate --force
+
+🌐 8. Acceder a la aplicación
+Railway generará una URL pública, por ejemplo:
+
+Código
+https://tuapp.up.railway.app
