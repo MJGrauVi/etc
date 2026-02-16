@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreTrabajoRequest;
-use App\Http\Requests\UpdateTrabajoRequest;
-use App\Models\Trabajo;
+use App\Http\Requests\StorePiezaRequest;
+use App\Http\Requests\UpdatePiezaRequest;
+use App\Models\Pieza;
 
-class TrabajoController extends Controller
+class PiezaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class TrabajoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTrabajoRequest $request)
+    public function store(StorePiezaRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class TrabajoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Trabajo $trabajo)
+    public function show(Pieza $pieza)
     {
         //
     }
@@ -43,7 +43,7 @@ class TrabajoController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Trabajo $trabajo)
+    public function edit(Pieza $pieza)
     {
         //
     }
@@ -51,7 +51,7 @@ class TrabajoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTrabajoRequest $request, Trabajo $trabajo)
+    public function update(UpdatePiezaRequest $request, Pieza $pieza)
     {
         //
     }
@@ -59,7 +59,7 @@ class TrabajoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Trabajo $trabajo)
+    public function destroy(Pieza $pieza)
     {
         //
     }
