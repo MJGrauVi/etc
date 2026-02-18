@@ -12,6 +12,14 @@ class MediaSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        $fichero = fopen(storage_path('app/public/media.txt'), 'r');
+        while(($datos=fgetmedia($fichero)!=null)){
+            Media::create([
+                "nombre" => $datos[0],
+                "url" => $datos[1],
+                "tipo" => $datos[2],
+
+            ]);
+        }
     }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('piezas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('titulo');
+            $table->string('nombre');
             $table->text('descripcion')->nullable();
             $table->decimal('precio',10, 2)->nullable();
             $table->timestamps();

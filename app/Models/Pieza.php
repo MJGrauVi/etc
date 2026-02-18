@@ -11,16 +11,18 @@ class Pieza extends Model
 {
     /** @use HasFactory<\Database\Factories\PiezaFactory> */
     use HasFactory;
+    protected $fillable = [
+        'user_id',
+        'nombre',
+        'descripcion',
+        'precio',
+        ];
 
     public function user(): BelongsTo{
         return $this->belongsTo(User::class);
     }
-    public function medias(): HasMany{
+    public function media():HasMany{
         return $this->hasMany(Media::class);
-    }
-    public function media():BelongsTo{
-        return $this->belongsTo(Media::class);
-
     }
 
 }

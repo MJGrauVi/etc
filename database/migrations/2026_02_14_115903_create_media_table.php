@@ -13,11 +13,19 @@ return new class extends Migration
     {
         Schema::create('media', function (Blueprint $table) {
             $table->id();
+            /*Relación co pieza*/
+            /*Si borro la pieza se borran las imagenes(medias) relacionadas con ella.*/
             $table->foreignId('pieza_id')->constrained()->cascadeOnDelete();
-            $table->enum('tipo', ['imagen', 'audio', 'video', 'documento'])->nullable();
+            $table->enum('tipo', ['image', 'video'])->nullable();
+            /*Ruta dentro del disco de Laravel(public, s3, etc.*/
             $table->string('path');
+            /*Orden y portada*/
             $table->integer('order')->default(0);
-            $table->boolean('is_portada')->default(false);
+            $table->boolean('es_portada')->default(false);
+            /*Información técnica del archivo.*/
+            $table->string('mime_type')->nullable();//ej: image/jpeg,png...
+            $table->unsignedBigInteger('size')->nullable();//Tamaño en bytes.
+            $table->string('nombre_original')->nullable();//Nombre original del archivo.
             $table->timestamps();
         });
     }

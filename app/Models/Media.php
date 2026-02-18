@@ -7,8 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Media extends Model
 {
-  public function piezas():HasManu{
-      return $this->hasMany(Pieza::class);
+    use HasFactory;
+    protected $table = 'media';
+
+
+    //Indica que campos se pueden añadir con Media::create(), si no estan Laravel los ignora.
+    protected $fillable = [
+        'pieza_id',
+        'tipo',
+        'path',
+        'order',
+        'es_portada',
+        'mime_type',
+        'size',
+        'nombre_original'];
+
+  public function pieza(){
+      return $this->belongsTo(Pieza::class);
 }
 
 

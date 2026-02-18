@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreMediaRequest;
-use App\Http\Requests\UpdateMediaRequest;
+
 use App\Models\Media;
+use Illuminate\Http\Request;
+/*use App\Http\Requests\UpdateMediaRequest;*/
 
 class MediaController extends Controller
 {
@@ -27,9 +28,34 @@ class MediaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMediaRequest $request)
+    public function store(Request $request)
     {
-        //
+        $request->validate([
+            'archivo' => 'required|file|mimes:jpeg,jpg,png,gif,webp,mp4,mov|max:20480',
+            'pieza_id' => 'required|exists:piezas,id',
+            'order' => 'nullable|integer',
+            'es_portada' => 'nullable|boolean',
+        ]);
+
+        //Recogemos el archivo.
+        $file = $request->file('file');
+
+        //Guarda el archivo en storage/app/public/media/{pieza_id}
+        $path = $file->store('media/' . $request->pieza_id, 'public');
+
+        //Creamos el registro en la BBDD.
+        $media = Media::create([
+            'pieza_id' => $request->pieza_id,
+            'tipo' => str_contains($file->getClientMimeType(), 'image')? 'image': 'video',
+            'path' => $path,
+            'order' => $request->order ?? 0,
+            'es_portada' => $request->es_portada ?? false,
+            'mime_type' => $file->getClientMimeType(),
+            'size' => $file->getSize(),
+            'nombre_original' => $file->getClientOriginalName(),
+        ]);
+        //Devolvemos el JSON al frontend.
+        return response()->json($media,201);
     }
 
     /**
