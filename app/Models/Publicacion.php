@@ -12,6 +12,7 @@ class Publicacion extends Model
 {
     /** @use HasFactory<\Database\Factories\PublicacionFactory> */
     use HasFactory;
+    protected $table = 'publicacions';
 
     /*Un usuario puede tener muchas piezas
     Una pieza puede tener muchas publicaciones

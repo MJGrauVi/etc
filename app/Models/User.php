@@ -26,6 +26,7 @@ class User extends Authenticatable
      * @var list<string>
      */
 
+    //Campos que podemos insertar con create().
     protected $fillable = [
         'nombre',
         'direccion',

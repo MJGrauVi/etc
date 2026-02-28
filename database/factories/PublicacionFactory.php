@@ -17,13 +17,11 @@ class PublicacionFactory extends Factory
      *
      * @return array<string, mixed>
      */
+
+    //
     protected $model = Publicacion::class;
     public function definition(): array
     {
-
-    {
-
-    }
         return [
             'user_id' => User::factory(),
             'pieza_id' => Pieza::factory(),

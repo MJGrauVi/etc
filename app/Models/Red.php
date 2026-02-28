@@ -9,4 +9,5 @@ class Red extends Model
 {
     /** @use HasFactory<\Database\Factories\RedFactory> */
     use HasFactory;
+    protected $table = 'reds';
 }

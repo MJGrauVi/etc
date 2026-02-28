@@ -39,9 +39,9 @@ class PermissionSeeder extends Seeder
         Permission::create(['name'=>'borrar publicacion']);
         Permission::create(['name'=>'crear publicacion']);
 
-        Permission::create(['name'=>'ver red_social']);
-        Permission::create(['name'=>'editar red_social']);
-        Permission::create(['name'=>'borrar red_social']);
-        Permission::create(['name'=>'crear red_social']);
+        Permission::create(['name'=>'ver red']);
+        Permission::create(['name'=>'editar red']);
+        Permission::create(['name'=>'borrar red']);
+        Permission::create(['name'=>'crear red']);
     }
 }

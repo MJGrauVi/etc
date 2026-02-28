@@ -16,16 +16,16 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(ReadAllUsersRequest $request)
+    public function index(Request $request)
     {
-        if (Auth::user()->hasRole('Admin')){
+/*        if (Auth::user()->hasRole('Admin')){
             return User::all();
         }else{
             return response([
                 "error"=>true,
                 "message"=>"no se tiene permisos para ver estos datos"
             ],403);
-        }
+        }*/
 
     }
 
@@ -35,14 +35,30 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         //dd($request);
-        return User::create($request->all());
+        $user = User::create($request->all('nombre','direccion','telefono','email', 'password'));
+        if(!$user){
+            return response([
+                "error"=>true,
+                "messaje"=>"No se ha podido crear el usuario en la bbdd."
+            ],500);
+        }else{
+            return response([
+                "error"=>false,
+                "messaje"=>"Usuario creado correctamente.",
+                "data"=>$user
+            ],201);
+        }
+       // dump("Estoy en el controlador para guardar un usuario.");
+/*
+        $validated['password'] = Hash::make($validated['password']);
 
+        return User::create($validated);*/
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(ShowUserRequest $request, User $user)
+    public function show(Request $request, User $user)
     {
         return $user;
     }
@@ -50,21 +66,18 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(Request $request, User $user)
     {
         /*$user->email=$request->email??$user->email;
         $user->password=$request->password??$user->password;
         $user->name=$request->name??$user->name;*/
 
-        $user->update([
+/*        $user->update([
             "email"=>$request->email??$user->email,
             "password" => $request->password??$user->password,
-            "name"=>$request->name??$user->name
-        ]);
+            "nombre"=>$request->nombre??$user->nombre
+        ]);*/
         //$user->save();
-
-
-
 
     }
 
@@ -73,47 +86,46 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+        $user->delete();
+        return response()->noContent();
     }
 
     public function verify(LoginUserRequest $request){
-        Auth::attempt([
+        $autenticado = Auth::attempt([
             "email"=>$request->email,
             "password"=>$request->password
         ]);
-
-        $usuario = Auth::user();
-
-        if(!$usuario){
+        if(!$autenticado){
             return response([
                 "error"=>true,
-                "message"=>'No se ha podido autenticar el usuario',
-                "code"=>403
-            ],403);
+                "message"=>"No se ha podido autenticar al usuario.",
+            ],401);
+
         }else{
-            $token = $usuario->createToken('auth_token')->plainTextToken;
+            $user=Auth::user();
+            $token=$user->createToken("auth-token")->plainTextToken;
             return response([
                 "error"=>false,
-                "message"=>'Usuario autenticado correctamente',
+                "message"=>"Usuario autenticado correctamente.",
                 "token"=>$token,
-                "type_token"=>"Bearer",
-                "code"=>200
+                "token_type"=>"Bearer"
             ],200);
         }
+
     }
 
-    public function logout(){
-
+    public function logout(Request $request){
+     //   dump("Estoy en logout");
         if (!Auth::user()->tokens()->delete()) {
             return response([
                 "error"=>true,
-                "message"=>'No se ha podido hacer logout del usuario',
+                "message"=>'No se ha podido hacer logout del usuario.',
                 "code"=>403
             ],403);
         }else{
             return response([
                 "error"=>false,
-                "message"=>'Cierre de session correcto',
+                "message"=>'Cierre de sessión correcto.',
                 "code"=>200
             ],200);
         }

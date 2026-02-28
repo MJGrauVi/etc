@@ -14,7 +14,8 @@ use App\Models\Pieza;
  */
 class UserFactory extends Factory
 {
-    protected $model = Publicacion::class;
+    //En que tabla debo hacer el insert cuando User llama a factory.
+    protected $model = User::class;
     /**
      * The current password being used by the factory.
      */
@@ -23,7 +24,7 @@ class UserFactory extends Factory
     /**
      * Define the model's default state.
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed>permissions
      */
     public function definition(): array
     {
@@ -31,7 +32,7 @@ class UserFactory extends Factory
             'nombre' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => bcrypt('password'),
+            'password' => Hash::make('123456'),
             'remember_token' => Str::random(10),
             ];
     }
