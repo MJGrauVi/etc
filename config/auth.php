@@ -40,7 +40,19 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'users',
+        ],
+
     ],
+/*  Debo añadir.....
+  'guards' => [
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'users',
+        ],
+    ],*/
 
     /*
     |--------------------------------------------------------------------------

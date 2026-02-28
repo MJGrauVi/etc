@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\Publicacion;
+use App\Models\Perfil;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class PublicacionPolicy
+class PerfilPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -19,7 +19,7 @@ class PublicacionPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Publicacion $publicacion): bool
+    public function view(User $user, Perfil $perfil): bool
     {
         return false;
     }
@@ -27,34 +27,31 @@ class PublicacionPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user, Pieza $pieza)
+    public function create(User $user): bool
     {
-        return $user->hasRole('Administrador')
-            || $pieza->user_id === $user->id;
+        return false;
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Publicacion $publicacion)
+    public function update(User $user, Perfil $perfil): bool
     {
-        return $user->hasRole('Administrador')
-            || $publicacion->pieza->user_id === $user->id;
+        return false;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Publicacion $publicacion)
+    public function delete(User $user, Perfil $perfil): bool
     {
-        return $user->hasRole('Administrador')
-            || $publicacion->pieza->user_id === $user->id;
+        return false;
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Publicacion $publicacion): bool
+    public function restore(User $user, Perfil $perfil): bool
     {
         return false;
     }
@@ -62,7 +59,7 @@ class PublicacionPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Publicacion $publicacion): bool
+    public function forceDelete(User $user, Perfil $perfil): bool
     {
         return false;
     }

@@ -7,7 +7,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Reglas a seguir
+     *
+     * Modelo → singular.
+     * Tabla → singular + s.
+     * Método hasMany plural como la tabla.
+     *
      */
     public function up(): void
     {
@@ -19,7 +24,6 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-           /* $table->foreingId('role_id')->constrained()->onDelete('cascade');*/
             $table->rememberToken();
             $table->timestamps();
         });

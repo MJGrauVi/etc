@@ -15,14 +15,18 @@ class Pieza extends Model
         'user_id',
         'nombre',
         'descripcion',
+        'categoria',
         'precio',
         ];
 
-    public function user(): BelongsTo{
+    public function users(): BelongsTo{
         return $this->belongsTo(User::class);
     }
-    public function media():HasMany{
+    public function medias():HasMany{
         return $this->hasMany(Media::class);
+    }
+    public function publicacions():HasMany{
+        return $this->hasMany(Publicacion::class);
     }
 
 }

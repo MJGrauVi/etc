@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StorePosterRequest;
-use App\Http\Requests\UpdatePosterRequest;
-use App\Models\Poster;
+use App\Http\Requests\StorePerfilRequest;
+use App\Http\Requests\UpdatePerfilRequest;
+use App\Models\Perfil;
 
-class PosterController extends Controller
+class PerfilController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class PosterController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePosterRequest $request)
+    public function store(StorePerfilRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class PosterController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Poster $poster)
+    public function show(Perfil $perfil)
     {
         //
     }
@@ -43,7 +43,7 @@ class PosterController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Poster $poster)
+    public function edit(Perfil $perfil)
     {
         //
     }
@@ -51,7 +51,7 @@ class PosterController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePosterRequest $request, Poster $poster)
+    public function update(UpdatePerfilRequest $request, Perfil $perfil)
     {
         //
     }
@@ -59,7 +59,7 @@ class PosterController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Poster $poster)
+    public function destroy(Perfil $perfil)
     {
         //
     }

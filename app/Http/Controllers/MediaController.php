@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Media;
+use App\Models\Pieza;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 /*use App\Http\Requests\UpdateMediaRequest;*/
 
 class MediaController extends Controller
@@ -12,9 +15,47 @@ class MediaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    /* Equivalente a:
+    SELECT * FROM medias WHERE piezas.id = medias.pieza_id
+    AND piezas.user_id = ?);
+      */
+    /* Alternativa más legible:
+        $user = auth()->user();
+        $medias = $user->piezas()
+            ->with('medias')
+            ->get()
+            ->pluck('medias')
+            ->flatten();
+        return response()->json($medias);
+     * */
+    public function index(){
+        $user = Auth::user();
+        $medias = Media::whereHas('pieza', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->get();
+
+        return response()->json($medias);
+    }
+    public function listarImagenesStorage()
     {
-        //
+        if (!Storage::disk('public')->exists('imagenes')) {
+            return response()->json([
+                'total' => 0,
+                'imagenes' => []
+            ]);
+        }
+        // Obtener todos los archivos dentro de la carpeta imagenes.
+        $files = Storage::disk('public')->files('imagenes');
+
+        // Convertir rutas internas en URLs públicas.
+        $urls = collect($files)->map(function ($file) {
+            return asset('storage/' . $file);
+        });
+
+        return response()->json([
+            'total' => count($urls),
+            'imagenes' => $urls
+        ]);
     }
 
     /**
@@ -31,28 +72,28 @@ class MediaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'archivo' => 'required|file|mimes:jpeg,jpg,png,gif,webp,mp4,mov|max:20480',
             'pieza_id' => 'required|exists:piezas,id',
+            'tipo' => 'required|in:image,video',
+            'path'=> 'required|string',
             'order' => 'nullable|integer',
             'es_portada' => 'nullable|boolean',
         ]);
 
-        //Recogemos el archivo.
-        $file = $request->file('file');
+        $pieza = Pieza::findOrFail($request->pieza_id);
 
-        //Guarda el archivo en storage/app/public/media/{pieza_id}
-        $path = $file->store('media/' . $request->pieza_id, 'public');
+        //Comprobamos que la pieza pertenece al usuario autenticado.
+        if($pieza->user_id !== auth()->id()){
+            return response()->json([
+                'mensaje' => 'No dispone de autorización para guardar este elemento en su BBDD.'
+            ],403);
+        }
 
         //Creamos el registro en la BBDD.
-        $media = Media::create([
-            'pieza_id' => $request->pieza_id,
-            'tipo' => str_contains($file->getClientMimeType(), 'image')? 'image': 'video',
-            'path' => $path,
-            'order' => $request->order ?? 0,
-            'es_portada' => $request->es_portada ?? false,
-            'mime_type' => $file->getClientMimeType(),
-            'size' => $file->getSize(),
-            'nombre_original' => $file->getClientOriginalName(),
+        $media = $pieza->medias()->create([
+            'tipo'=> $request->tipo,
+            'path'=> $request->path,
+            'order'=> $request->order ?? 0,
+            'es_portada'=> $request->es_portada ?? false
         ]);
         //Devolvemos el JSON al frontend.
         return response()->json($media,201);
@@ -87,6 +128,14 @@ class MediaController extends Controller
      */
     public function destroy(Media $media)
     {
-        //
+        $this->authorize('delete', $media);
+
+        Storage::disk('public')->delete($media->path);
+
+        $media->delete();
+
+        return response()->json([
+            'message' => 'Media eliminada correctamente'
+        ]);
     }
 }

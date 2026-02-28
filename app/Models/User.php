@@ -3,18 +3,22 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Couchbase\Role;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Fortify\TwoFactorauthenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+use App\Models\Pieza;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -28,7 +32,7 @@ class User extends Authenticatable
         'telefono',
         'email',
         'password',
-        'role_id',
+
     ];
 
     /**
@@ -53,10 +57,15 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    //Relacion 1:1, un usuario tiene un perfil
+
     public function piezas(): HasMany{
         return $this->hasMany(Pieza::class);
     }
-    public function rol(): BelongsTo{
-        return $this->belongsTo(Rol::class);
-    }
+
+
+   /* public function publicacions(): HasMany{
+        return $this->hasMany(Publicacion::class);
+    }*/
+
 }

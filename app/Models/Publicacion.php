@@ -13,7 +13,31 @@ class Publicacion extends Model
     /** @use HasFactory<\Database\Factories\PublicacionFactory> */
     use HasFactory;
 
-    public function publicaciones():BelongsToMany{
-        return $this->belongsToMany(Media::class)->withPivot('fecha_vencimiento')->withTimestamps();
+    /*Un usuario puede tener muchas piezas
+    Una pieza puede tener muchas publicaciones
+    Una pieza puede tener muchas imágenes
+    Una publicación pertenece a una sola pieza*/
+
+    protected $fillable = [
+        'pieza_id',
+        'nombre',
+        'descripcion',
+        'publicado_en',
+        ];
+
+    public function piezas():BelongsTo{
+        return $this->belongsTo(Pieza::class);
     }
+    public function publicar()
+    {
+        if ($this->estado !== 'borrador') {
+            throw new \Exception('Solo se puede publicar desde estado borrador.');
+        }
+
+        $this->update([
+            'estado' => 'publicado'
+
+        ]);
+    }
+
 }

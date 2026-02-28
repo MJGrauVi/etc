@@ -14,10 +14,12 @@ class MediaFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    Protected $model = Media::class;
+
     public function definition(): array
     {
         return [
-            //
-        ];
+
+            ];
     }
 }

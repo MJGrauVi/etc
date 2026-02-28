@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('templates', function (Blueprint $table) {
+        Schema::create('medias', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            $table->text('descripcion')->nullable();
-            $table->string('preview_path')->nullable();
-            $table->jsonb('config_json');//Guarda en postgres en formato binario,permite filtrar por propiedades.
-            $table->boolean('active')->default(true);
+            $table->foreignId('pieza_id')->constrained('piezas')->cascadeOnDelete();
+            $table->enum('tipo', ['image', 'video'])->default('image');
+            $table->string('path');
+            $table->integer('order')->default(0);
+            $table->boolean('es_portada')->default(false);
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('templates');
+        Schema::dropIfExists('medias');
     }
 };

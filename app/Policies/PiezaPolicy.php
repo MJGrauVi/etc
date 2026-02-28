@@ -13,15 +13,25 @@ class PiezaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasRole('Administrador') || $user->hasRole('Usuario');
     }
 
     /**
      * Determine whether the user can view the model.
      */
+
     public function view(User $user, Pieza $pieza): bool
     {
-        return false;
+        return $user->hasRole('Administrador')
+            ||
+            $pieza->user_id === $user->id;
+    }
+
+    public function update(User $user, Pieza $pieza): bool
+    {
+        return $user->hasRole('Administrador')
+            ||
+            $pieza->user_id === $user->id;
     }
 
     /**
@@ -33,19 +43,13 @@ class PiezaPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Pieza $pieza): bool
-    {
-        return false;
-    }
-
-    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Pieza $pieza): bool
     {
-        return false;
+        return $user->hasRole('Administrador')
+            ||
+            $pieza->user_id === $user->id;
     }
 
     /**

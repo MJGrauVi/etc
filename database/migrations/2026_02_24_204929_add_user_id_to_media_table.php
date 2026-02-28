@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rols', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre');
-            $table->timestamps();
+        Schema::table('media', function (Blueprint $table) {
+            //
         });
     }
 
@@ -23,7 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-
+        Schema::table('media', function (Blueprint $table) {
+            //
+        });
     }
 };
-

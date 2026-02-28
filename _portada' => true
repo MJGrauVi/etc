@@ -1,0 +1,11 @@
+[90m= [39m[34;4mApp\Models\Pieza[39;24m {#6552
+    [34mid[39m: [35m8[39m,
+    [34muser_id[39m: [35m1[39m,
+    [34mnombre[39m: "[32mPeldaños[39m",
+    [34mdescripcion[39m: "[32mPeldaños escalera realizados en madera de nogal.[39m",
+    [34mcategoria[39m: "[32mDecoración interior[39m",
+    [34mprecio[39m: "[32m0.00[39m",
+    [34mcreated_at[39m: "[32m2026-02-27 20:07:05[39m",
+    [34mupdated_at[39m: "[32m2026-02-27 20:07:05[39m",
+  }
+

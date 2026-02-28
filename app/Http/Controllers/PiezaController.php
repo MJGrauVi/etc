@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePiezaRequest;
 use App\Http\Requests\UpdatePiezaRequest;
 use App\Models\Pieza;
+use App\Models\User;
 
 class PiezaController extends Controller
 {
@@ -13,7 +14,13 @@ class PiezaController extends Controller
      */
     public function index()
     {
-        //
+        $this->authorize('viewAny', Pieza::class);
+
+        if (auth()->user()->hasRole('Administrador')) {
+            return Pieza::all();
+        }
+
+        return auth()->user()->piezas;
     }
 
     /**
@@ -29,7 +36,7 @@ class PiezaController extends Controller
      */
     public function store(StorePiezaRequest $request)
     {
-        //
+        return auth()->user()->piezas()->create($request->all());
     }
 
     /**
@@ -37,7 +44,9 @@ class PiezaController extends Controller
      */
     public function show(Pieza $pieza)
     {
-        //
+        $this->authorize('view', $pieza);
+
+        return $pieza;
     }
 
     /**
@@ -53,7 +62,7 @@ class PiezaController extends Controller
      */
     public function update(UpdatePiezaRequest $request, Pieza $pieza)
     {
-        //
+       /* $this->authorize('update', $pieza);*/
     }
 
     /**
@@ -61,6 +70,6 @@ class PiezaController extends Controller
      */
     public function destroy(Pieza $pieza)
     {
-        //
+        $this->authorize('delete', $pieza);
     }
 }

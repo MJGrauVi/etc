@@ -45,7 +45,7 @@ class MediaPolicy
      */
     public function delete(User $user, Media $media): bool
     {
-        return false;
+        return $user->hasRole('Administrador') || $media->pieza->user_id === $user->id;
     }
 
     /**

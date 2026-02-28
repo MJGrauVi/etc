@@ -9,13 +9,14 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
+    public function up(): void {
         Schema::create('publicacions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('pieza_id')->constrained()->cascadeOnDelete();
-            $table->string('path');
+            $table->string('nombre')->nullable();
+            $table->text('descripcion')->nullable();
+            $table->enum('estado',['borrador', 'pendiente', 'publicado', 'error'])->default('borrador');
+            $table->enum('publicado_en',['facebook', 'instagram', 'tiktok', 'x'])->nullable();
             $table->timestamps();
         });
     }

@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePublicacionRequest;
 use App\Http\Requests\UpdatePublicacionRequest;
+use App\Models\Pieza;
 use App\Models\Publicacion;
+use Illuminate\Http\Request;
+
 
 class PublicacionController extends Controller
 {
@@ -27,11 +30,29 @@ class PublicacionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePublicacionRequest $request)
+    public function store(Request $request, Pieza $pieza)
     {
-        //
+            $this->authorize('create', [Publicacion::class, $pieza]);
+
+    $request->validate([
+        'nombre' => 'nullable|string|max:255',
+        'descripcion' => 'nullable|string',
+        'publicado_en'=> 'required|in:facebook,instagram,tiktok,x'
+    ]);
+
+    $publicacion = $pieza->publicacions()->create([
+        'nombre' => $request->nombre,
+        'descripcion' => $request->descripcion,
+        'publicado_en' => $request->publicado_en,
+        'estado' => 'borrador'
+    ]);
+
+    return response()->json($publicacion, 201);
     }
 
+  /*  public function store(StorePublicacionRequest $request){
+
+    }*/
     /**
      * Display the specified resource.
      */
@@ -47,7 +68,6 @@ class PublicacionController extends Controller
     {
         //
     }
-
     /**
      * Update the specified resource in storage.
      */
@@ -55,12 +75,19 @@ class PublicacionController extends Controller
     {
         //
     }
-
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Publicacion $publicacion)
     {
         //
+    }
+    public function publicar(Publicacion $publicacion)
+    {
+        $this->authorize('update', $publicacion);
+
+        $publicacion->publicar();
+
+        return response()->json($publicacion);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Media;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,14 +13,13 @@ class MediaSeeder extends Seeder
      */
     public function run(): void
     {
-        $fichero = fopen(storage_path('app/public/media.txt'), 'r');
-        while(($datos=fgetmedia($fichero)!=null)){
+        $fichero = fopen(Storage_path('media.txt'), "r");
+        while(($datos = fgetcsv($fichero))!=null){
             Media::create([
-                "nombre" => $datos[0],
-                "url" => $datos[1],
-                "tipo" => $datos[2],
-
+                'nombre_original' => $datos[0],
+                'path' => $datos[1],
             ]);
         }
+
     }
 }
