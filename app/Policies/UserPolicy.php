@@ -7,59 +7,65 @@ use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
+    //La policy define que puede hacer cada usuario autenticado sobre un modelo concreto, en este caso User.
+    //Indica que puede hacer un usuario sobre otros.
     /**
-     * Determine whether the user can view any models.
+     * Ver listado de usuarios(usuario con rol especificado).
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $authUser): bool
     {
-        return false;
+        return $authUser->hasRole('Administrador');
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Un usuario autenticado puede ver su propio perfil y el administrador cualquiera.
      */
-    public function view(User $user, User $model): bool
+    public function view(User $authUser, User $user): bool
     {
-        return false;
+
+        return $authUser->hasRole('Administrador') || $authUser->id === $user->id;
+
+        // Con roles:
+        // return $authUser->hasRole('Admin') || $authUser->id === $user->id;
     }
 
     /**
-     * Determine whether the user can create models.
+     * Solo puedes crear usuarios con rol de Administrador.
      */
-    public function create(User $user): bool
+    public function create(User $authUser): bool
     {
-        return false;
+        return $authUser->hasRole('Administrador');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, User $model): bool
+    public function update(User $authUser, User $user): bool
     {
-        return false;
+        return $authUser->hasRole('Administrador') || $authUser->id === $user->id;
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Solo puede eliminar un usuario con rol de administraor.
      */
     public function delete(User $authUser, User $user)
     {
-        return $authUser->id === $user->id;
+        return $authUser->hasRole('Administrador');
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, User $model): bool
+    public function restore(User $authUser, User $model): bool
     {
-        return false;
+        return $authUser->hasRole('Administrador');
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, User $model): bool
+    public function forceDelete(User $authUser, User $model): bool
     {
-        return false;
+        return $authUser->hasRole('Administrador');
     }
 }

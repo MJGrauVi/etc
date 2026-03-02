@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    //Registrar la policy para enlazar con el sistema.
     protected $policies = [
         User::class => UserPolicy::class,
     ];
