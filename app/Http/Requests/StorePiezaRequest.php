@@ -11,7 +11,7 @@ class StorePiezaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class StorePiezaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'user_id' => 'required|exists:users,id',
+            'nombre' => 'required|string',
+            'descripcion' => 'required|text',
+            'categoria' => 'nullable|string',
+            'precio' => 'nullable|numeric'
         ];
     }
 }

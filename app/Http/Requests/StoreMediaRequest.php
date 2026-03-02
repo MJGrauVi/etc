@@ -11,7 +11,7 @@ class StoreMediaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class StoreMediaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-        ];
+            'pieza_id' => 'required|exists:piezas,id',
+            'tipo' => 'required|in:image,video',
+            'path' => 'required|file|mimes:jpg,png,jpeg,mp4',
+            'order' => 'nullable|integer',
+            'es_portada' => 'nullable|boolean', ];
     }
 }
