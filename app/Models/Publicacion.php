@@ -20,7 +20,6 @@ class Publicacion extends Model
     Una publicación pertenece a una sola pieza*/
 
     protected $fillable = [
-        'pieza_id',
         'nombre',
         'descripcion',
         'publicado_en',

@@ -12,7 +12,6 @@ class Pieza extends Model
     /** @use HasFactory<\Database\Factories\PiezaFactory> */
     use HasFactory;
     protected $fillable = [
-        'user_id',
         'nombre',
         'descripcion',
         'categoria',

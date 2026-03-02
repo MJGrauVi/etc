@@ -18,14 +18,14 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-/*        if (Auth::user()->hasRole('Admin')){
+        if (Auth::user()->hasRole('Admin')){
             return User::all();
         }else{
             return response([
                 "error"=>true,
                 "message"=>"no se tiene permisos para ver estos datos"
             ],403);
-        }*/
+        }
 
     }
 
@@ -56,29 +56,37 @@ class UserController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Mostrar un usuario.
      */
-    public function show(Request $request, User $user)
+    public function show(User $user)
     {
-        return $user;
+        return response([
+            "error" => false,
+            "data" => $user
+        ], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    /**
+     * Actualizar usuario
+     */
+    public function update(UpdateUserRequest $request, User $user)
     {
-        /*$user->email=$request->email??$user->email;
-        $user->password=$request->password??$user->password;
-        $user->name=$request->name??$user->name;*/
+        $data = $request->validated();
 
-/*        $user->update([
-            "email"=>$request->email??$user->email,
-            "password" => $request->password??$user->password,
-            "nombre"=>$request->nombre??$user->nombre
-        ]);*/
-        //$user->save();
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
 
+        $user->update($data);
+
+        return response([
+            "error" => false,
+            "message" => "Usuario actualizado correctamente.",
+            "data" => $user
+        ], 200);
     }
 
     /**
@@ -87,7 +95,10 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        return response()->noContent();
+        return response([
+            "error" => false,
+            "message" => "Usuario eliminado correctamente.",
+        ]);
     }
 
     public function verify(LoginUserRequest $request){
@@ -98,7 +109,7 @@ class UserController extends Controller
         if(!$autenticado){
             return response([
                 "error"=>true,
-                "message"=>"No se ha podido autenticar al usuario.",
+                "message"=>"Credenciales incorrectas.",
             ],401);
 
         }else{
