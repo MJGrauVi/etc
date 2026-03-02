@@ -32,6 +32,10 @@ class UserPolicy
     /**
      * Solo puedes crear usuarios con rol de Administrador.
      */
+    /*public function create(User $User): bool
+    {
+        return true;
+    }*/
     public function create(User $authUser): bool
     {
         return $authUser->hasRole('Administrador');
