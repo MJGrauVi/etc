@@ -92,13 +92,22 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(Request $request,User $user)
     {
+        //Comprobación delegada a la policy.
+  /*      if ($request->user()->id !== $user->id) {
+            return response([
+                "error" => true,
+                "message" => "No autorizado."
+            ], 403);
+        }*/
+
+        $this->authorize('delete', $user);
         $user->delete();
         return response([
             "error" => false,
             "message" => "Usuario eliminado correctamente.",
-        ]);
+        ],200);
     }
 
     public function verify(LoginUserRequest $request){
@@ -125,8 +134,26 @@ class UserController extends Controller
 
     }
 
+/*    public function logout(Request $request)
+    {
+        if (!$request->user()) {
+            return response([
+                "error" => true,
+                "message" => "No autenticado"
+            ], 401);
+        }*/
+        //tokens()->delete() elimina todos los tokens del usuario.
+        //currentAccessToken elimina sólo el actual.
+/*        $request->user()->currentAccessToken()->delete();
+
+        return response([
+            "error" => false,
+            "message" => "Cierre de sesión correcto."
+        ], 200);
+    }*/
+
     public function logout(Request $request){
-     //   dump("Estoy en logout");
+        //   dump("Estoy en logout");
         if (!Auth::user()->tokens()->delete()) {
             return response([
                 "error"=>true,
