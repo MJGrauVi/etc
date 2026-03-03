@@ -80,6 +80,8 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+
+        $this->authorize('update', $user);
         $data = $request->validated();
 
         if (isset($data['password'])) {
@@ -87,12 +89,12 @@ class UserController extends Controller
         }
 
         $user->update($data);
-
-        return response([
+        return response()->json($user);
+      /*  return response([
             "error" => false,
             "message" => "Usuario actualizado correctamente.",
             "data" => $user
-        ], 200);
+        ], 200);*/
     }
 
     /**

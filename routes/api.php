@@ -26,9 +26,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/users', [UserController::class, 'index']);//ok admin + token.
     Route::get('/user/{user}', [UserController::class, 'show']);//ok admin, y user + token.
-    Route::put('/user/{user}', [UserController::class, 'update']);
+    Route::put('/user/{user}', [UserController::class, 'update']);//ok admin y user + token.
     Route::delete('/users/{user}', [UserController::class, 'destroy']);//ok admin y authUser/token.
-    Route::post('/user/logout', [UserController::class, 'logout']);//ok
+    Route::post('/user/logout', [UserController::class, 'logout']);//ok con token.
 
     //Rutas REST para Pieza.
     //Cualquier peticion necesita token Bearer.
