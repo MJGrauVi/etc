@@ -18,21 +18,19 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        if (Auth::user()->hasRole('Admin')){
-            return User::all();
-        }else{
-            return response([
-                "error"=>true,
-                "message"=>"no se tiene permisos para ver estos datos"
-            ],403);
-        }
+        // Llama a UserPolicy@viewAny
+        $this->authorize('viewAny', User::class);
+        return response([
+            "error" => false,
+            "data" => User::all()
+        ], 200);
 
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request)
+   /* public function store(StoreUserRequest $request)
     {
         //dd($request);
         $user = User::create($request->all('nombre','direccion','telefono','email', 'password'));
@@ -49,12 +47,19 @@ class UserController extends Controller
             ],201);
         }
        // dump("Estoy en el controlador para guardar un usuario.");
-/*
-        $validated['password'] = Hash::make($validated['password']);
 
-        return User::create($validated);*/
+    }*/
+    public function store(StoreUserRequest $request) {
+        $this->authorize('create', User::class);
+        $data = $request->validated();
+        $data['password'] = Hash::make($data['password']);
+        $user = User::create($data);
+        return response([
+            "error" => false,
+            "message" => "Usuario creado correctamente.",
+            "data" => $user
+        ], 201);
     }
-
     /**
      * Mostrar un usuario.
      */
@@ -92,7 +97,7 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request,User $user)
+    public function destroy(User $user)
     {
         //Comprobación delegada a la policy.
   /*      if ($request->user()->id !== $user->id) {
@@ -101,8 +106,8 @@ class UserController extends Controller
                 "message" => "No autorizado."
             ], 403);
         }*/
-
-        $this->authorize('delete', $user);
+       // dd($user);
+       $this->authorize('delete', $user);
         $user->delete();
         return response([
             "error" => false,
@@ -131,26 +136,7 @@ class UserController extends Controller
                 "token_type"=>"Bearer"
             ],200);
         }
-
     }
-
-/*    public function logout(Request $request)
-    {
-        if (!$request->user()) {
-            return response([
-                "error" => true,
-                "message" => "No autenticado"
-            ], 401);
-        }*/
-        //tokens()->delete() elimina todos los tokens del usuario.
-        //currentAccessToken elimina sólo el actual.
-/*        $request->user()->currentAccessToken()->delete();
-
-        return response([
-            "error" => false,
-            "message" => "Cierre de sesión correcto."
-        ], 200);
-    }*/
 
     public function logout(Request $request){
         //   dump("Estoy en logout");
@@ -168,4 +154,8 @@ class UserController extends Controller
             ],200);
         }
     }
+
+
+
+
 }

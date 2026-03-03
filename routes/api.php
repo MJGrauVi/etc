@@ -19,15 +19,15 @@ use App\Http\Controllers\MediaController;
 //Pruebas en postman incluir /api/.....
 Route::post('/user', [UserController::class, 'store']);//ok
 //Para login: http://localhost/api/user/login (añadir Bearer Token y Content-Type)
-Route::post('/user/login', [UserController::class, 'verify']);//ok
+Route::post('/login', [UserController::class, 'verify']);//ok
 
 /************* Dentro del grupo las rutas que estan protegidas con middleware.*******************/
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/user', [UserController::class, 'index']);
+    Route::get('/users', [UserController::class, 'index']);
     Route::get('/user/{user}', [UserController::class, 'show']);
     Route::put('/user/{user}', [UserController::class, 'update']);
-    Route::delete('/user/{user}', [UserController::class, 'destroy']);
+    Route::delete('/users/{user}', [UserController::class, 'destroy']);
     Route::post('/user/logout', [UserController::class, 'logout']);//ok
 
     //Rutas REST para Pieza.

@@ -29,10 +29,10 @@ class PermissionSeeder extends Seeder
         Permission::create(['name'=>'borrar media']);
         Permission::create(['name'=>'crear media']);
 
-        Permission::create(['name'=>'ver usuario']);
-        Permission::create(['name'=>'editar usuario']);
-        Permission::create(['name'=>'borrar usuario']);
-        Permission::create(['name'=>'crear usuario']);
+        Permission::create(['name'=>'ver user']);
+        Permission::create(['name'=>'editar user']);
+        Permission::create(['name'=>'borrar user']);
+        Permission::create(['name'=>'crear user']);
 
         Permission::create(['name'=>'ver publicacion']);
         Permission::create(['name'=>'editar publicacion']);

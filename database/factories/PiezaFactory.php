@@ -22,9 +22,11 @@ class PiezaFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => User::factory(),
             'nombre' => $this->faker->name(),
             'descripcion' => $this->faker->paragraph(3),
-            'categoria' =>$this->faker->randomElement(['general', 'carpintero', 'escultor', 'herrero']),
+            /*'categoria' =>$this->faker->randomElement(['general', 'carpintero', 'escultor', 'herrero']),*/
+            'categoria' => $this->faker->word(),
             'precio' => $this->faker->randomFloat(2, 10, 100),
             ];
     }

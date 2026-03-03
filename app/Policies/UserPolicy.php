@@ -14,6 +14,10 @@ class UserPolicy
      */
     public function viewAny(User $authUser): bool
     {
+        //Un usuario autenticado puede verlos.
+        //return true;
+
+        //Solo los administradores podrán ver todos los usuarios.
         return $authUser->hasRole('Administrador');
     }
 
@@ -52,9 +56,9 @@ class UserPolicy
     /**
      * Solo puede eliminar un usuario con rol de administraor.
      */
-    public function delete(User $authUser, User $user)
+    public function delete(User $authUser, User $user):bool
     {
-        return $authUser->hasRole('Administrador');
+        return $authUser->id === $user->id || $authUser->hasRole('Administrador');
     }
 
     /**
