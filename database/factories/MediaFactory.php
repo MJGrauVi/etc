@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Media;
+use App\Models\Pieza;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +21,13 @@ class MediaFactory extends Factory
     public function definition(): array
     {
         return [
+            'pieza_id' => Pieza::factory(),
+            'tipo' => $this->faker->randomElements(['imagen', 'video']),
+            'path' => $this->faker->imageUrl(),
+            'order' => $this->faker->randomDigitNotZero(),
+            'es_portada' => $this->faker->boolean(),
 
             ];
+
     }
 }

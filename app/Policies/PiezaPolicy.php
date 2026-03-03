@@ -27,23 +27,23 @@ class PiezaPolicy
             $pieza->user_id === $user->id;
     }
 
-    public function update(User $user, Pieza $pieza): bool
+    public function update(User $authUser, Pieza $pieza): bool
     {
-        return $user->hasRole('Administrador')
-            ||
-            $pieza->user_id === $user->id;
+        return $authUser->id === $pieza->user_id
+            || $authUser->hasRole('Administrador');
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determina si tiene permiso para crear una pieza(no recibe la pieza porque todavía no existe.
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasRole('Administrador')
+            || $user->hasRole('Usuario');
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Puede eliminar el propietario de la pieza o un administrador.
      */
     public function delete(User $user, Pieza $pieza): bool
     {

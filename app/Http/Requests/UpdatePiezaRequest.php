@@ -7,11 +7,12 @@ use Illuminate\Foundation\Http\FormRequest;
 class UpdatePiezaRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina si un usuario esta autorizado a realizar esta peticion.
      */
     public function authorize(): bool
     {
-        return false;
+        //La autorización la controlamos con la policy.
+        return true;
     }
 
     /**
@@ -21,8 +22,12 @@ class UpdatePiezaRequest extends FormRequest
      */
     public function rules(): array
     {
+        //Utilizo sometimes porque en un update no estás obligado a enviar todos los campos.
         return [
-            //
+            'nombre' => 'sometimes|string|max:255',
+            'descripcion' => 'sometimes|string',
+            'categoria' => 'sometimes|string|max:100',
+            'precio' => 'sometimes|numeric|min:0',
         ];
     }
 }

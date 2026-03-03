@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class StorePiezaRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * La autorización la controlamos con la policy.
      */
     public function authorize(): bool
     {
@@ -23,10 +23,10 @@ class StorePiezaRequest extends FormRequest
     {
         return [
             'user_id' => 'required|exists:users,id',
-            'nombre' => 'required|string',
+            'nombre' => 'required|string|max:255',
             'descripcion' => 'required|text',
-            'categoria' => 'nullable|string',
-            'precio' => 'nullable|numeric'
+            'categoria' => 'nullable|string|max:100',
+            'precio' => 'nullable|numeric|min:0',
         ];
     }
 }

@@ -34,11 +34,20 @@ class PiezaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePiezaRequest $request)
-    {
-        return auth()->user()->piezas()->create($request->all());
-    }
+    public function store(StorePiezaRequest $request){
 
+        $this->authorize('create', Pieza::class);
+        $data = $request->validated();
+       //Asociamos la pieza al usuario autenticado.
+        $data['user_id'] = $request->user()->id();
+
+        $pieza = Pieza::create($data);
+        return response([
+            "error" => false,
+            "message" => "Pieza creada correctamente.",
+            "data" => $pieza
+        ], 201);
+    }
     /**
      * Display the specified resource.
      */
@@ -62,7 +71,17 @@ class PiezaController extends Controller
      */
     public function update(UpdatePiezaRequest $request, Pieza $pieza)
     {
-       /* $this->authorize('update', $pieza);*/
+        $this->authorize('update', $pieza);
+
+        $data = $request->validated();
+
+        $pieza->update($data);
+
+        return response([
+            "error" => false,
+            "message" => "Pieza actualizada correctamente.",
+            "data" => $pieza
+        ], 200);
     }
 
     /**
