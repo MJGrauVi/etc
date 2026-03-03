@@ -41,9 +41,10 @@ class UserPolicy
     {
         return true;
     }*/
-    public function create(User $authUser): bool
+    public function create(?User $authUser): bool
     {
-        return $authUser->hasRole('Administrador');
+        //return $authUser->hasRole('Administrador');
+        return true;
     }
 
     /**
