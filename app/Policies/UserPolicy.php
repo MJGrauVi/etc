@@ -10,15 +10,16 @@ class UserPolicy
     //La policy define que puede hacer cada usuario autenticado sobre un modelo concreto, en este caso User.
     //Indica que puede hacer un usuario sobre otros.
     /**
-     * Ver listado de usuarios(usuario con rol especificado).
+     * Ver listado de usuarios.
+     * La clase Response permite devolver más información cuando deniegas un permiso.
      */
-    public function viewAny(User $authUser): bool
+    public function viewAny(User $authUser)
     {
         //Un usuario autenticado puede verlos.
         //return true;
 
         //Solo los administradores podrán ver todos los usuarios.
-        return $authUser->hasRole('Administrador');
+        return $authUser->hasRole('Administrador') ? Response::allow() : Response::deny('Solo los administradores pueden ver el listado de usuarios.');
     }
 
     /**

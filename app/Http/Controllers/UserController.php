@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -138,24 +139,14 @@ class UserController extends Controller
         }
     }
 
-    public function logout(Request $request){
-        //   dump("Estoy en logout");
-        if (!Auth::user()->tokens()->delete()) {
-            return response([
-                "error"=>true,
-                "message"=>'No se ha podido hacer logout del usuario.',
-                "code"=>403
-            ],403);
-        }else{
-            return response([
-                "error"=>false,
-                "message"=>'Cierre de sessión correcto.',
-                "code"=>200
-            ],200);
-        }
+    public function logout(Request $request) {
+        $token = $request->user()->currentAccessToken();
+        if ($token) { $token->delete();
+        } return response([
+            "error" => false,
+            "message" => "Cierre de sesión correcto.",
+            "code" => 200
+        ], 200);
     }
-
-
-
 
 }
