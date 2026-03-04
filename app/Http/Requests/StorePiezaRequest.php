@@ -22,9 +22,9 @@ class StorePiezaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id',
+            /*'user_id' => 'required|exists:users,id',*/
             'nombre' => 'required|string|max:255',
-            'descripcion' => 'required|text',
+            'descripcion' => 'required|string|max:255',
             'categoria' => 'nullable|string|max:100',
             'precio' => 'nullable|numeric|min:0',
         ];

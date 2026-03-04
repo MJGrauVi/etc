@@ -26,9 +26,9 @@ class PiezaController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(User $user)
     {
-        //
+        return $user->hasRole('Usuario');
     }
 
     /**
@@ -39,7 +39,8 @@ class PiezaController extends Controller
         $this->authorize('create', Pieza::class);
         $data = $request->validated();
        //Asociamos la pieza al usuario autenticado.
-        $data['user_id'] = $request->user()->id();
+
+        $data['user_id'] = $request->user()->id;
 
         $pieza = Pieza::create($data);
         return response([
@@ -90,5 +91,10 @@ class PiezaController extends Controller
     public function destroy(Pieza $pieza)
     {
         $this->authorize('delete', $pieza);
+        $pieza->delete();
+        return response([
+            "error" => false,
+            "message" => "Pieza eliminada correctamente.",
+        ], 200);
     }
 }

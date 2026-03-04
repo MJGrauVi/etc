@@ -31,19 +31,33 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/logout', [UserController::class, 'logout']);//ok con token.
 
     //Rutas REST para Pieza.
+
+
     //Cualquier peticion necesita token Bearer.
-    Route::apiResource('piezas', PiezaController::class);
-    Route::apiResource('medias', MediaController::class);
+    Route::post('/pieza', [PiezaController::class, 'store']);
+    Route::get('/piezas', [PiezaController::class, 'index']);
+    Route::put('/pieza/{pieza}', [PiezaController::class, 'update']);
+    Route::delete('/pieza/{pieza}', [PiezaController::class, 'destroy']);
 
     //Guardar en bbdd las rutas de las imagenes de las piezas.
-    Route::post('/medias', [MediaController::class, 'store']);
+    Route::post('/media', [PiezaController::class, 'store']);
+    Route::get('/medias', [PiezaController::class, 'index']);
+    Route::put('/media/{media}', [PiezaController::class, 'update']);
+    Route::delete('/media/{media}', [PiezaController::class, 'destroy']);
+
+    //Rutas para las publicaciones.
+   // Route::post('piezas/{pieza}/publicacions', [PublicacionController::class, 'store']);
+   // Route::patch('publicacions/{publicacion}/publicar', [PublicacionController::class, 'publicar']);
+   // Route::delete('publicacions/{publicacion}', [PublicacionController::class, 'destroy']);
+
     //Muestra las url de las imagenes.
     Route::get('imagenes', [MediaController::class, 'index']);
     //Muestra las url de las imagenes en storage.
    // Route::middleware('auth:sanctum')->get('imagenes/storage', [MediaController::class, 'listarImagenesStorage']);
 
 
-    Route::post('piezas/{pieza}/publicacions', [PublicacionController::class, 'store']);
-    Route::patch('publicacions/{publicacion}/publicar', [PublicacionController::class, 'publicar']);
-    Route::delete('publicacions/{publicacion}', [PublicacionController::class, 'destroy']);
+
+    //Route::apiResource('piezas', PiezaController::class);
+    //Route::apiResource('medias', MediaController::class);
+
 });
