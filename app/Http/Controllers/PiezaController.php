@@ -14,13 +14,21 @@ class PiezaController extends Controller
      */
     public function index()
     {
+        // Llama a PiezaPolicy@viewAny.
         $this->authorize('viewAny', Pieza::class);
 
         if (auth()->user()->hasRole('Administrador')) {
             return Pieza::all();
         }
-
         return auth()->user()->piezas;
+        // Llama a PiezaPolicy@viewAny
+
+       return response([
+            "error" => false,
+            "data" => Pieza::all()
+        ], 200);
+
+
     }
 
     /**
@@ -39,7 +47,6 @@ class PiezaController extends Controller
         $this->authorize('create', Pieza::class);
         $data = $request->validated();
        //Asociamos la pieza al usuario autenticado.
-
         $data['user_id'] = $request->user()->id;
 
         $pieza = Pieza::create($data);

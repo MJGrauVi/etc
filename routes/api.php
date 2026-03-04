@@ -32,12 +32,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Rutas REST para Pieza.
 
-
     //Cualquier peticion necesita token Bearer.
-    Route::post('/pieza', [PiezaController::class, 'store']);
-    Route::get('/piezas', [PiezaController::class, 'index']);
-    Route::put('/pieza/{pieza}', [PiezaController::class, 'update']);
-    Route::delete('/pieza/{pieza}', [PiezaController::class, 'destroy']);
+    Route::get('/piezas', [PiezaController::class, 'index']);//Administrador ve todas, usuario las suyas.
+    Route::post('/pieza', [PiezaController::class, 'store']);//ok
+    Route::get('/pieza/{pieza}', [PiezaController::class, 'show']);//Admin de cualquier usuario, usuario las suyas.
+    Route::put('/pieza/{pieza}', [PiezaController::class, 'update']);//ok
+    Route::delete('/pieza/{pieza}', [PiezaController::class, 'destroy']);//ok
 
     //Guardar en bbdd las rutas de las imagenes de las piezas.
     Route::post('/media', [PiezaController::class, 'store']);
