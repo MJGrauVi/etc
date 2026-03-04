@@ -13,7 +13,8 @@ class Perfil extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nombre_completo',
+        'nombre_usuario',
+        'dni_cif',
         'avatar',
         'descripcion',
     ];

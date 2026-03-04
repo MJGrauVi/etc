@@ -12,10 +12,14 @@ return new class extends Migration {
     {
         Schema::create('perfils', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_completo');
+            $table->string('nombre_usuario');
+            $table->string('dni_cif')->unique;
             $table->string('avatar');
             $table->text('descripcion');
             $table->foreignId('user_id')->unique()->constrained();
         });
+    }
+    public function down(): void{
+        Schema::dropIfExists('perfils');
     }
 };
