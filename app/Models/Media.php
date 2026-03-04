@@ -15,6 +15,7 @@ class Media extends Model
     //Indica que campos se pueden añadir con Media::create(), si no estan Laravel los ignora.
     protected $fillable = [
         'pieza_id',
+        'nombre_original',
         'tipo',
         'path',
         'order',

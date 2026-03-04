@@ -13,7 +13,7 @@ class MediaSeeder extends Seeder
      */
     public function run(): void
     {
-        $fichero = fopen(Storage_path('media.txt'), "r");
+        $fichero = fopen(Storage_path('app/private/media.txt'), "r");
         while(($datos = fgetcsv($fichero))!=null){
             Media::create([
                 'nombre_original' => $datos[0],

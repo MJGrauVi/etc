@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('medias', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pieza_id')->constrained('piezas')->cascadeOnDelete();
+            $table->string('nombre_original');
             $table->enum('tipo', ['image', 'video'])->default('image');
             $table->string('path');
             $table->integer('order')->default(0);
