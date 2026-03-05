@@ -25,10 +25,9 @@ class PublicacionFactory extends Factory
         return [
             'user_id' => User::factory(),
             'pieza_id' => Pieza::factory(),
-            'nombre' => $this->faker->sentence(),
-            'descripcion' => $this->faker->paragraph(4),
+            'titulo' => $this->faker->sentence(),
+            'contenido' => $this->faker->paragraph(4),
             'estado' => 'borrador',
-            'publicado_en' => null,
             ];
     }
 }

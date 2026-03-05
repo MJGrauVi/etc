@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Pieza;
 use App\Models\Publicacion;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -11,17 +12,21 @@ class PublicacionPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
-    {
-        return false;
-    }
+    public function viewAny(User $user) {
+        // Admin puede ver todas
+        if ($user->hasRole('Administrador')) {
+            return true;
+        }
+        // Usuarios normales pueden ver sus propias publicaciones.
+        return true; // Permitimos el acceso al listado, pero filtraremos en el controlador.
+        }
 
     /**
      * Determine whether the user can view the model.
      */
     public function view(User $user, Publicacion $publicacion): bool
     {
-        return false;
+        return $user->hasRole('Administrador') || $publicacion->pieza->user_id === $user->id;
     }
 
     /**

@@ -2,22 +2,27 @@
 
 namespace Database\Factories;
 
+use App\Models\Red;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Red>
- */
 class RedFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
-    {
-        return [
-            //
+    public function definition(): array{
+        /*$redes = [
+            ['nombre' => 'Twitter', 'url_base' => 'https://twitter.com/'],
+            ['nombre' => 'Instagram', 'url_base' => 'https://instagram.com/'],
+            ['nombre' => 'Facebook', 'url_base' => 'https://facebook.com/'],
+            ['nombre' => 'LinkedIn', 'url_base' => 'https://linkedin.com/'],
+            ['nombre' => 'TikTok', 'url_base' => 'https://tiktok.com/'],
         ];
+
+        $red = $this->faker->randomElement($redes);
+
+        return [
+            'nombre' => $red['nombre'],
+            'url_base' => $red['url_base'],
+        ];*/
+
+        return Red::factory()->count(5)->create();
     }
 }

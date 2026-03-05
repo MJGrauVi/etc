@@ -20,14 +20,20 @@ class Publicacion extends Model
     Una publicación pertenece a una sola pieza*/
 
     protected $fillable = [
-        'nombre',
-        'descripcion',
-        'publicado_en',
+        'titulo',
+        'contenido',
+        'estado',
         ];
 
     public function piezas():BelongsTo{
         return $this->belongsTo(Pieza::class);
     }
+
+    public function reds():BelongsToMany{
+        return $this->belongsToMany(Red::class);
+    }
+
+
     public function publicar()
     {
         if ($this->estado !== 'borrador') {
@@ -36,6 +42,7 @@ class Publicacion extends Model
 
         $this->update([
             'estado' => 'publicado'
+
 
         ]);
     }

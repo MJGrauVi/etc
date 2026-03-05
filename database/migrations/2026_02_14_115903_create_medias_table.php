@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('nombre_original');
             $table->enum('tipo', ['imagen', 'video'])->default('imagen');
             $table->string('path');
-            $table->integer('orden')->default(0);
             $table->boolean('es_portada')->default(false);
             $table->timestamps();
         });

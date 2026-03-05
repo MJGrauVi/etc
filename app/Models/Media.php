@@ -18,7 +18,6 @@ class Media extends Model
         'nombre_original',
         'tipo',
         'path',
-        'orden',
         'es_portada'];
 
   public function piezas():BelongsTo{

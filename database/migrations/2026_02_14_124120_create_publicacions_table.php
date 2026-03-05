@@ -14,10 +14,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('pieza_id')->constrained()->cascadeOnDelete();
-            $table->string('nombre')->nullable();
-            $table->text('descripcion')->nullable();
+            $table->string('titulo')->nullable();
+            $table->text('contenido')->nullable();//Ira el contenido generado por IA.
             $table->enum('estado',['borrador', 'pendiente', 'publicado', 'error'])->default('borrador');
-            $table->enum('publicado_en',['facebook', 'instagram', 'tiktok', 'x'])->nullable();
             $table->timestamps();
         });
     }

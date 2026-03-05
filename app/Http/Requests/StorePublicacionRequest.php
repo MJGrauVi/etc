@@ -11,7 +11,7 @@ class StorePublicacionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class StorePublicacionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'titulo' => 'required|string|max:255',
+            'contenido' => 'required|string|max:10000',
+            'estado' => 'required|string|max:255',
         ];
+
     }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('reds', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->string('url_api');
+            $table->string('url_base')->nullable();
             $table->timestamps();
         });
     }

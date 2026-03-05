@@ -2,65 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreRedRequest;
-use App\Http\Requests\UpdateRedRequest;
 use App\Models\Red;
+use Illuminate\Http\Request;
+use App\Http\Requests\StoreRedRequest;
 
 class RedController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Red::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreRedRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Red $red)
     {
-        //
+        return response()->json($red);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Red $red)
+    public function store(StoreRedRequest $request)
     {
-        //
+        $red = Red::create($request->validated());
+
+        return response()->json($red, 201);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateRedRequest $request, Red $red)
+    public function update(Request $request, Red $red)
     {
-        //
+        $red->update($request->all());
+
+        return response()->json($red);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Red $red)
     {
-        //
+        $red->delete();
+
+        return response()->json(null, 204);
     }
 }
