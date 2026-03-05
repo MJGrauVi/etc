@@ -6,6 +6,7 @@ use App\Http\Requests\StorePiezaRequest;
 use App\Http\Requests\UpdatePiezaRequest;
 use App\Models\Pieza;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class PiezaController extends Controller
 {
@@ -18,14 +19,15 @@ class PiezaController extends Controller
         $this->authorize('viewAny', Pieza::class);
 
         if (auth()->user()->hasRole('Administrador')) {
-            return Pieza::all();
+            return response([
+                "error" => false,
+                "data" => Pieza::all()
+            ], 200);
         }
-        return auth()->user()->piezas;
-        // Llama a PiezaPolicy@viewAny
 
        return response([
             "error" => false,
-            "data" => Pieza::all()
+            "data" => auth()->user()->piezas
         ], 200);
 
 
@@ -36,7 +38,12 @@ class PiezaController extends Controller
      */
     public function create(User $user)
     {
-        return $user->hasRole('Usuario');
+        return response([
+            "error" => false,
+            "message" => "Pieza creada correctamente.",
+            //"data" => $pieza
+        ], 201);
+       // return $user->hasRole('Usuario');
     }
 
     /**

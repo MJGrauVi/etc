@@ -59,8 +59,9 @@ DB_PASSWORD=******
 ```
 http://localhost
 ```
+# Despliegue en Github Codespaces.
 
-# Opción para despliegue (gratuito en Railway)
+# Opción2 para despliegue (gratuito en Railway)
 
 Este proyecto puede desplegarse fácilmente en **Railway**, una plataforma gratuita ideal para estudiantes.  
 Railway permite ejecutar aplicaciones Laravel online sin configurar servidores manualmente.

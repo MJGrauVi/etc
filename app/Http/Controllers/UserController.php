@@ -137,7 +137,8 @@ class UserController extends Controller
                 "error"=>false,
                 "message"=>"Usuario autenticado correctamente.",
                 "token"=>$token,
-                "token_type"=>"Bearer"
+                "token_type"=>"Bearer",
+                "data" => $user
             ],200);
         }
     }
