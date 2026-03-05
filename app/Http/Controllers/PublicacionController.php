@@ -34,7 +34,7 @@ class PublicacionController extends Controller
      */
     public function create()
     {
-        //
+        //Solo para blade.
     }
 
     /**
@@ -42,25 +42,25 @@ class PublicacionController extends Controller
      */
     public function store(StorePublicacionRequest $request) {
         $data = $request->validated();
-        // 1. Obtener la pieza
+        // 1. Obtener la pieza.
         $pieza = Pieza::findOrFail($data['pieza_id']);
-        // 2. Autorizar usando la policy
+        // 2. Autorizar usando la policy.
         $this->authorize('create', [Publicacion::class, $pieza]);
         // 3. Crear la publicación.
         $publicacion = Publicacion::create([
-            'titulo' => $data['titulo'],
-            'descripcion' => $data['descripcion'] ?? null,
+            'titulo' => $data['titulo'] ?? null,
+            'contenido' => $data['descripcion'] ?? null,
             'pieza_id' => $data['pieza_id'],
-            'media_id' => $data['media_id'] ?? null,
             'user_id' => $request->user()->id
             ]);
         // 4. Relación N:N con redes.
-        if (!empty($data['redes'])) {
+        if (!empty($data['reds'])) {
             $publicacion->reds()->sync($data['redes']);
         } return response()->json([
             'message' => 'Publicación creada correctamente',
-            'data' => $publicacion ],
-            201);
+            'data' => $publicacion
+            /*'data' => $publicacion->load('piezas', 'medias', 'reds')*/
+        ], 201);
     }
 
     /**
@@ -68,7 +68,11 @@ class PublicacionController extends Controller
      */
     public function show(Publicacion $publicacion)
     {
-        //
+        $this->authorize('view', $publicacion);
+
+        $publicacion->load('pieza','media','reds');
+
+        return response()->json($publicacion);
     }
 
     /**
@@ -83,14 +87,37 @@ class PublicacionController extends Controller
      */
     public function update(UpdatePublicacionRequest $request, Publicacion $publicacion)
     {
-        //
+        $this->authorize('update', $publicacion);
+
+        $data = $request->validated();
+
+        $publicacion->update([
+            'titulo' => $data['titulo'],
+            'descripcion' => $data['descripcion'] ?? null,
+            'media_id' => $data['media_id'] ?? null
+        ]);
+
+        if(isset($data['redes'])){
+            $publicacion->reds()->sync($data['redes']);
+        }
+
+        return response()->json([
+            'message' => 'Publicación actualizada',
+            'data' => $publicacion->load('pieza','media','reds')
+        ]);
     }
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Publicacion $publicacion)
     {
-        //
+        $this->authorize('delete', $publicacion);
+
+        $publicacion->delete();
+
+        return response()->json([
+            'message' => 'Publicación eliminada'
+        ]);
     }
     public function publicar(Publicacion $publicacion)
     {

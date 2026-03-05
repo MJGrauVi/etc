@@ -23,10 +23,15 @@ class Publicacion extends Model
         'titulo',
         'contenido',
         'estado',
+        'pieza_id',
+        'user_id'
         ];
 
     public function piezas():BelongsTo{
         return $this->belongsTo(Pieza::class);
+    }
+    public function medias():BelongsTo{
+        return $this->belongsTo(Media::class);
     }
 
     public function reds():BelongsToMany{
