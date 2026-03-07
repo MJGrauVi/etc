@@ -17,15 +17,33 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+/*    public function index(Request $request)
     {
         // Llama a UserPolicy@viewAny
         $this->authorize('viewAny', User::class);
+
+        $users = User::with('roles')->get();
         return response([
             "error" => false,
             "data" => User::all()
         ], 200);
 
+    }*/
+
+    public function index()
+    {
+        $this->authorize('viewAny', User::class);
+
+        $users = User::with('roles:id,name')->get();
+
+     /*   $users->each(function ($user) {
+            $user->rol = $user->roles->pluck('name')->first();
+            unset($user->roles);
+        });*/
+        return response()->json([
+            "error" => false,
+            "data" => $users
+        ], 200);
     }
 
     /**
@@ -69,16 +87,14 @@ class UserController extends Controller
         $this->authorize('view', $user);
         return response([
             "error" => false,
-            "data" => $user
+            "data" => $user->load('roles')
         ], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    /**
-     * Actualizar usuario
-     */
+  /*
     public function update(UpdateUserRequest $request, User $user)
     {
 
@@ -91,11 +107,34 @@ class UserController extends Controller
 
         $user->update($data);
         return response()->json($user);
+  }
       /*  return response([
             "error" => false,
             "message" => "Usuario actualizado correctamente.",
             "data" => $user
         ], 200);*/
+    public function update(UpdateUserRequest $request, User $user)
+    {
+        $this->authorize('update', $user);
+        $data = $request->validated();
+
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        $rol = $data['rol'] ?? null;
+        unset($data['rol']);
+        $user->update($data);
+
+        if($rol){
+            $this->authorize('changeRole', $user);
+            $user->syncRoles($rol);
+        }
+        return response([
+            "error" => false,
+            "message" => "Usuario actualizado correctamente.",
+            "data" => $user->load('roles')
+        ]);
     }
 
     /**

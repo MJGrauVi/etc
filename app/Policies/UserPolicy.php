@@ -78,4 +78,10 @@ class UserPolicy
     {
         return $authUser->hasRole('Administrador');
     }
+    /*
+     * Función específica para cambiar rol a un usuario.
+     * */
+    public function changeRole(User $authUser, User $user): bool{
+        return $authUser->hasRole('Administrador');
+    }
 }

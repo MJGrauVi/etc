@@ -25,7 +25,8 @@ class UpdateUserRequest extends FormRequest
         return [
             'nombre' => 'sometimes|string|max:255',
             'direccion' => 'sometimes|string|max:255',
-            'telefono' => 'sometimes|string|max:100'
+            'telefono' => 'sometimes|string|max:100',
+            'rol' => 'sometimes|string|exists:roles,name'//Spatie guarda los roles en tabla roles.
         ];
     }
 }

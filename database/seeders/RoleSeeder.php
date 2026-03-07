@@ -40,6 +40,10 @@ class RoleSeeder extends Seeder
             'crear user',
             'editar user',
             'borrar user',
+        /*    'ver perfil',
+            'crear perfil',
+            'editar perfil',
+            'borrar perfil',*/
 
             ]);
         $invitado = Role::findByName('Invitado');
