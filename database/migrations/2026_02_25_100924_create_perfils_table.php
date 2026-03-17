@@ -12,11 +12,19 @@ return new class extends Migration {
     {
         Schema::create('perfils', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_usuario');
-            $table->string('dni_cif')->unique;
-            $table->string('avatar');
+            $table->enum('tipo_documento', ['nif', 'cif', 'nie'])->nullable();
+            //Introduce nif, cif o nie.
+            $table->string('documento')->unique()->nullable();
+            //Adicional al telefono del usuario.
+            $table->string('movil')->nullable();
+            //Imagen del logo.
+            $table->string('logo')->nullable();
             $table->text('descripcion');
-            $table->foreignId('user_id')->unique()->constrained();
+            $table->string('web')->nullable();
+            $table->json('redes_sociales')->nullable();
+            $table->timestamps();
+            //Relación 1:1 con users.
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
         });
     }
     public function down(): void{

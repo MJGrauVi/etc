@@ -64,6 +64,11 @@ class User extends Authenticatable
     public function piezas(): HasMany{
         return $this->hasMany(Pieza::class);
     }
+    //Añadimos la relacion con perfil.
+    public function perfils(): HasOne{
+        return $this->hasOne(Perfil::class);
+    }
+
    // public static function o
    /* public function publicacions(): HasMany{
         return $this->hasMany(Publicacion::class);

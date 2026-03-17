@@ -41,11 +41,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/pieza/{pieza}', [PiezaController::class, 'destroy']);//ok
 
     //Guardar en bbdd las rutas de las imagenes de las piezas.
-    Route::get('/medias', [PiezaController::class, 'index']);
-    Route::post('/media', [PiezaController::class, 'store']);
-    Route::get('/media/{pieza}', [PiezaController::class, 'show']);
-    Route::put('/media/{media}', [PiezaController::class, 'update']);
-    Route::delete('/media/{media}', [PiezaController::class, 'destroy']);
+    Route::get('/medias', [MediaController::class, 'index']);
+    Route::post('/media', [MediaController::class, 'store']);
+    Route::get('/media/{pieza}', [MediaController::class, 'show']);
+    Route::put('/media/{media}', [MediaController::class, 'update']);
+    Route::delete('/media/{media}', [MediaController::class, 'destroy']);
 
     //Rutas para las publicaciones.
     Route::get('/publicaciones', [PublicacionController::class, 'index']);
@@ -60,8 +60,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/publicacion/{publicacion}/reds/{red}', [PublicacionRedController::class, 'detach']);
 
 
-
-
     Route::post('piezas/{pieza}/publicacions', [PublicacionController::class, 'store']);
     Route::patch('publicacions/{publicacion}/publicar', [PublicacionController::class, 'publicar']);
     //Muestra las url de las imagenes.
@@ -69,9 +67,14 @@ Route::middleware('auth:sanctum')->group(function () {
     //Muestra las url de las imagenes en storage.
    // Route::middleware('auth:sanctum')->get('imagenes/storage', [MediaController::class, 'listarImagenesStorage']);
 
+    // Perfil del usuario autenticado.
+    Route::get('/user/perfil', [UserController::class, 'perfil']);
+    Route::put('/user/perfil', [UserController::class, 'updatePerfil']);
 
+// Subir logo o imagen del usuario.
+    Route::post('/user/perfil/logo', [UserController::class, 'uploadLogo']);
 
-    //Route::apiResource('piezas', PiezaController::class);
-    //Route::apiResource('medias', MediaController::class);
-
+    Route::get('/user/profile', [PerfilController::class, 'show']);
+    Route::put('/user/profile', [PerfilController::class, 'update']);
+    Route::post('/user/profile/logo', [PerfilController::class, 'uploadLogo']);
 });

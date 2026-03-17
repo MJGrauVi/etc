@@ -12,10 +12,23 @@ class Perfil extends Model
     /** @use HasFactory<\Database\Factories\PerfilFactory> */
     use HasFactory;
 
+    //Para que Laravel sepa el nombre real de mi tabla y no aplique perfiles.
+    protected $table = 'perfils';
+
     protected $fillable = [
-        'nombre_usuario',
-        'dni_cif',
-        'avatar',
+        'user_id',
+        'tipo_documento',
+        'documento',
+        'movil',
+        'logo',
         'descripcion',
+        'web',
+        'redes_sociales'
     ];
+    protected $casts = [
+        'redes_sociales' => 'array',
+    ];
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
 }

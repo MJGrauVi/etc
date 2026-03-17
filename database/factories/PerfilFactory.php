@@ -17,9 +17,14 @@ class PerfilFactory extends Factory
     public function definition(): array
     {
         return [
-            'nombre_completo' => $this->faker->name(),
-            'avatar' => $this->faker->imageUrl(),
-            'descripcion' => $this->faker->text(),
+            'tipo_documento' => $this->faker->randomElement(['dni', 'cif', 'nie']),
+            'documento' => $this->faker->bothify('########?'),
+            'movil' => $this->faker->phoneNumber(),
+            'logo' => null,
+            'descripcion' => $this->faker->sentence(10),
+            'web' => $this->faker->url(),
+            'redes_sociales' => ['instagram' => $this->faker->url(),'facebook' => $this->faker->url(),
+            ],
         ];
     }
 }

@@ -5,62 +5,76 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePerfilRequest;
 use App\Http\Requests\UpdatePerfilRequest;
 use App\Models\Perfil;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PerfilController extends Controller
 {
+
+
     /**
-     * Display a listing of the resource.
+     * Mostrar el perfil del usuario autenticado.
      */
-    public function index()
+    public function show()
     {
-        //
+        $perfil = Auth::user()->perfil;
+
+        return response([
+            "error"=>false,
+            "message"=>"Perfil obtenido correctamente",
+            "data"=>$perfil
+        ],200);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Actualizar el perfil del usuario autenticado.
      */
-    public function create()
+    public function update(Request $request)
     {
-        //
+        $perfil = Auth::user()->perfil;
+
+        $validated = $request->validate([
+            'tipo_documento' => 'nullable|in:nif,cif,nie',
+            'documento' => 'nullable|string|max:50',
+            'movil' => 'nullable|string|max:20',
+            'descripcion' => 'nullable|string',
+            'web' => 'nullable|string|max:255',
+            'redes_sociales' => 'nullable|array'
+        ]);
+
+        $perfil->update($validated);
+
+        return response([
+            "error" => false,
+            "message" => "Perfil actualizado correctamente.",
+            "data" => $perfil
+        ], 200);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Subir o actualizar el logo del usuario.
      */
-    public function store(StorePerfilRequest $request)
-    {
-        //
+    public function uploadLogo(Request $request){
+        $perfil = Auth::user()->perfil;
+        $request->validate([
+            'logo'=>'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+        //Borrar logo anterior si existe.
+        if($perfil->logo){
+            Storage::disk('public')->delete($perfil->logo);
+        }
+
+        //Guardar nuevo logo.
+        $path = $request->file('logo')->store('logos','public');
+        $perfil->update([
+            'logo' => $path
+        ]);
+        return response([
+            "error" => false,
+            "message" => "Logo actualizado correctamente.",
+            "data" => $perfil
+        ],200);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Perfil $perfil)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Perfil $perfil)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePerfilRequest $request, Perfil $perfil)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Perfil $perfil)
-    {
-        //
-    }
 }

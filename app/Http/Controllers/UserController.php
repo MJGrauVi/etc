@@ -17,18 +17,6 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-/*    public function index(Request $request)
-    {
-        // Llama a UserPolicy@viewAny
-        $this->authorize('viewAny', User::class);
-
-        $users = User::with('roles')->get();
-        return response([
-            "error" => false,
-            "data" => User::all()
-        ], 200);
-
-    }*/
 
     public function index()
     {
@@ -49,30 +37,25 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-   /* public function store(StoreUserRequest $request)
-    {
-        //dd($request);
-        $user = User::create($request->all('nombre','direccion','telefono','email', 'password'));
-        if(!$user){
-            return response([
-                "error"=>true,
-                "messaje"=>"No se ha podido crear el usuario en la bbdd."
-            ],500);
-        }else{
-            return response([
-                "error"=>false,
-                "messaje"=>"Usuario creado correctamente.",
-                "data"=>$user
-            ],201);
-        }
-       // dump("Estoy en el controlador para guardar un usuario.");
 
-    }*/
     public function store(StoreUserRequest $request) {
         $this->authorize('create', User::class);
+
         $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
+        //Crear usuario.
         $user = User::create($data);
+
+        //>Crear perfil vacio asociado.
+        $user->perfil()->create([
+            'tipo_documento' => null,
+            'documento' => null,
+            'movil' => null,
+            'logo' => null,
+            'descripcion' => null,
+            'web' => null,
+            'redes_sociales' => null,
+        ]);
         return response([
             "error" => false,
             "message" => "Usuario creado correctamente.",
@@ -128,12 +111,12 @@ class UserController extends Controller
 
         if($rol){
             $this->authorize('changeRole', $user);
-            $user->syncRoles($rol);
+            $user->syncRoles($rol);//Actualiza en rol en model_has_roles.
         }
         return response([
             "error" => false,
             "message" => "Usuario actualizado correctamente.",
-            "data" => $user->load('roles')
+            "data" => $user->load('roles')//Load hace que veamos el rol en postman.
         ]);
     }
 
@@ -191,5 +174,14 @@ class UserController extends Controller
             "code" => 200
         ], 200);
     }
+
+    //Obtener el perfil del usuario autenticado.
+/*    public function perfil(Request $request){
+        $user = $request->user()->load('roles');
+        return response([
+            "error" => false,
+            "data" => $user
+        ],200);
+    }*/
 
 }
