@@ -49,6 +49,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/media/{media}', [MediaController::class, 'update']);
     Route::delete('/media/{media}', [MediaController::class, 'destroy']);
 
+    //Ruta para generar contenido con OpenAI.
+    Route::post('/publicacion/generar', [PublicacionController::class, 'generarContenido']);
     //Rutas para las publicaciones.
     Route::get('/publicaciones', [PublicacionController::class, 'index']);
     Route::post('/publicacion', [PublicacionController::class, 'store']);

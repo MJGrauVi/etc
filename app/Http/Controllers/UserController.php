@@ -56,6 +56,8 @@ class UserController extends Controller
             'web' => null,
             'redes_sociales' => null,
         ]);
+
+        $user->sendEmailVerificationNotification();
         return response([
             "error" => false,
             "message" => "Usuario creado correctamente.",

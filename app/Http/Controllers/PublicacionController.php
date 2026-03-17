@@ -127,4 +127,20 @@ class PublicacionController extends Controller
 
         return response()->json($publicacion);
     }
+    public function generarContenido(Request $request)
+    {
+        $tema = $request->tema;
+
+        $respuesta = OpenAI::chat()->create([
+            'model' => 'gpt-4o-mini',
+            'messages' => [
+                ['role' => 'system', 'content' => 'Eres un generador de contenido para publicaciones.'],
+                ['role' => 'user', 'content' => "Genera un texto para una publicación sobre: $tema"],
+            ],
+        ]);
+
+        return [
+            "contenido" => $respuesta['choices'][0]['message']['content']
+        ];
+    }
 }
