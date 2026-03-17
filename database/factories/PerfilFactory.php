@@ -17,7 +17,7 @@ class PerfilFactory extends Factory
     public function definition(): array
     {
         return [
-            'tipo_documento' => $this->faker->randomElement(['dni', 'cif', 'nie']),
+            'tipo_documento' => $this->faker->randomElement(['nif', 'cif', 'nie']),
             'documento' => $this->faker->bothify('########?'),
             'movil' => $this->faker->phoneNumber(),
             'logo' => null,

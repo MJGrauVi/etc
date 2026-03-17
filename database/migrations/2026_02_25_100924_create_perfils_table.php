@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->string('movil')->nullable();
             //Imagen del logo.
             $table->string('logo')->nullable();
-            $table->text('descripcion');
+            $table->text('descripcion')->nullable;
             $table->string('web')->nullable();
             $table->json('redes_sociales')->nullable();
             $table->timestamps();

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PiezaController;
 use App\Http\Controllers\PublicacionController;
 use App\Http\Controllers\PublicacionRedController;
@@ -27,9 +28,10 @@ Route::post('/login', [UserController::class, 'verify']);//ok
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/users', [UserController::class, 'index']);//ok admin + token.
+    Route::put('/user/settings', [UserController::class, 'updateSettings']);
     Route::get('/user/{user}', [UserController::class, 'show']);//ok admin, y user + token.
     Route::put('/user/{user}', [UserController::class, 'update']);//ok admin y user + token.
-    Route::delete('/users/{user}', [UserController::class, 'destroy']);//ok admin y authUser/token.
+    Route::delete('/user/{user}', [UserController::class, 'destroy']);//ok admin y authUser/token.
     Route::post('/user/logout', [UserController::class, 'logout']);//ok con token.
 
     //Rutas REST para Pieza.
@@ -67,14 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //Muestra las url de las imagenes en storage.
    // Route::middleware('auth:sanctum')->get('imagenes/storage', [MediaController::class, 'listarImagenesStorage']);
 
-    // Perfil del usuario autenticado.
-    Route::get('/user/perfil', [UserController::class, 'perfil']);
-    Route::put('/user/perfil', [UserController::class, 'updatePerfil']);
-
-// Subir logo o imagen del usuario.
-    Route::post('/user/perfil/logo', [UserController::class, 'uploadLogo']);
-
-    Route::get('/user/profile', [PerfilController::class, 'show']);
-    Route::put('/user/profile', [PerfilController::class, 'update']);
-    Route::post('/user/profile/logo', [PerfilController::class, 'uploadLogo']);
+    Route::get('/user/perfil', [PerfilController::class, 'show']);
+    Route::put('/perfil', [PerfilController::class, 'update']);
+    Route::post('/user/perfil/logo', [PerfilController::class, 'uploadLogo']);
 });

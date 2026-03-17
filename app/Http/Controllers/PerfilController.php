@@ -38,7 +38,7 @@ class PerfilController extends Controller
             'tipo_documento' => 'nullable|in:nif,cif,nie',
             'documento' => 'nullable|string|max:50',
             'movil' => 'nullable|string|max:20',
-            'descripcion' => 'nullable|string',
+            'descripcion' => 'nullable|string|max:255',
             'web' => 'nullable|string|max:255',
             'redes_sociales' => 'nullable|array'
         ]);

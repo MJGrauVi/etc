@@ -22,7 +22,7 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        $users = User::with('roles:id,name')->get();
+        $users = User::with('perfil','roles:id,name')->get();
 
      /*   $users->each(function ($user) {
             $user->rol = $user->roles->pluck('name')->first();
@@ -67,35 +67,16 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+
         $this->authorize('view', $user);
         return response([
             "error" => false,
-            "data" => $user->load('roles')
+            "message" => "Usuario encontrado.",
+            "data" => $user->load( 'perfil', 'roles')
         ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-  /*
-    public function update(UpdateUserRequest $request, User $user)
-    {
 
-        $this->authorize('update', $user);
-        $data = $request->validated();
-
-        if (isset($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        }
-
-        $user->update($data);
-        return response()->json($user);
-  }
-      /*  return response([
-            "error" => false,
-            "message" => "Usuario actualizado correctamente.",
-            "data" => $user
-        ], 200);*/
     public function update(UpdateUserRequest $request, User $user)
     {
         $this->authorize('update', $user);
@@ -119,7 +100,51 @@ class UserController extends Controller
             "data" => $user->load('roles')//Load hace que veamos el rol en postman.
         ]);
     }
+    /*
+     * Cambiar usuario y/o contraseña.
+     */
+    public function updateSettings(Request $request)
+    {
+        $user = Auth::user();
 
+        $request->validate([
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
+            'current_password' => 'required_with:new_password',
+            'new_password' => 'nullable|min:6|confirmed',
+        ]);
+
+        // Cambiar email
+        if ($request->email && $request->email !== $user->email) {
+            $user->email = $request->email;
+        }
+
+        // Cambiar contraseña
+        if ($request->new_password) {
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response([
+                    "error" => true,
+                    "message" => "La contraseña actual no es correcta."
+                ], 422);
+            }
+
+            $user->password = Hash::make($request->new_password);
+        }
+
+        if (!$user->isDirty()) {
+            return response([
+                "error" => true,
+                "message" => "No se realizaron cambios."
+            ], 422);
+        }
+
+        $user->save();
+
+        return response([
+            "error" => false,
+            "message" => "Datos actualizados correctamente.",
+            "data" => $user
+        ], 200);
+    }
     /**
      * Remove the specified resource from storage.
      */

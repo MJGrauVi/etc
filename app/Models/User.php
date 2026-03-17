@@ -33,7 +33,9 @@ class User extends Authenticatable
         'telefono',
         'email',
         'password',
-        'rol'
+        'rol',
+        'perfil'
+
 
     ];
 
@@ -65,7 +67,7 @@ class User extends Authenticatable
         return $this->hasMany(Pieza::class);
     }
     //Añadimos la relacion con perfil.
-    public function perfils(): HasOne{
+    public function perfil(): HasOne{
         return $this->hasOne(Perfil::class);
     }
 
