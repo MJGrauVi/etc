@@ -23,6 +23,14 @@ services:
             - sail
         depends_on:
             - pgsql
+            - ollama
+    ollama:
+        image: ollama/ollama:latest
+        container_name: ollama
+        volumes:
+            - 'sail-ollama:/root/.ollama'
+        networks:
+            - sail
 
     pgsql:
         image: 'postgres:18-alpine'
@@ -54,4 +62,6 @@ networks:
         driver: bridge
 volumes:
     sail-pgsql:
+        driver: local
+    sail-ollama:
         driver: local

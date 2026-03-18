@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePublicacionRequest;
 use App\Http\Requests\UpdatePublicacionRequest;
+use App\Services\OllamaService;
 use App\Models\Pieza;
 use App\Models\Publicacion;
 use Illuminate\Http\Request;
@@ -14,19 +15,21 @@ class PublicacionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() { $user = auth()->user();
-        // 1. Autorizar acceso general
+    public function index() {
+        $user = auth()->user();
+        // Autorizar acceso general
         $this->authorize('viewAny', Publicacion::class);
-        // 2. Si es admin → ver todas
-        if ($user->hasRole('Administrador')) {
-            $publicaciones = Publicacion::with('pieza', 'media', 'reds')->get();
-        }
-        // 3. Si es usuario normal → ver solo las suyas
-        else {
-            $publicaciones = Publicacion::whereHas('pieza', function ($q) use ($user) {
+
+        // Ajuste: Cargamos pieza.media porque media no cuelga de publicacion
+        $query = Publicacion::with(['piezas.medias', 'reds']);
+
+        // Si es admin → ver todas
+        if (!$user->hasRole('Administrador')) {
+            $query->whereHas('piezas', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
-            }) ->with('pieza', 'media', 'reds') ->get();
-        } return response()->json($publicaciones);
+            });
+        }
+        return response()->json($query->get());
     }
 
     /**
@@ -44,21 +47,24 @@ class PublicacionController extends Controller
         $data = $request->validated();
         // 1. Obtener la pieza.
         $pieza = Pieza::findOrFail($data['pieza_id']);
+
         // 2. Autorizar usando la policy.
         $this->authorize('create', [Publicacion::class, $pieza]);
+
         // 3. Crear la publicación.
         $publicacion = Publicacion::create([
-            'titulo' => $data['titulo'] ?? null,
-            'contenido' => $data['descripcion'] ?? null,
-            'pieza_id' => $data['pieza_id'],
-            'user_id' => $request->user()->id
+            'titulo' => $data['titulo'] ?? "Publicación de {$pieza->nombre}",
+            'contenido' => $data['contenido'] ?? null,//Contenido generado/editado.
+            'pieza_id' => $pieza->id,
+            'user_id' => auth()->id()
             ]);
-        // 4. Relación N:N con redes.
+        // 4. Sincronizar redes sociales seleccionadas. (Relación N:N con redes.)
         if (!empty($data['reds'])) {
-            $publicacion->reds()->sync($data['redes']);
+            $publicacion->reds()->sync($data['reds']);
+
         } return response()->json([
-            'message' => 'Publicación creada correctamente',
-            'data' => $publicacion
+            'message' => 'Publicación lista para redes sociales.',
+            'data' => $publicacion->load('piezas.medias', 'reds')
             /*'data' => $publicacion->load('piezas', 'medias', 'reds')*/
         ], 201);
     }
@@ -93,17 +99,17 @@ class PublicacionController extends Controller
 
         $publicacion->update([
             'titulo' => $data['titulo'],
-            'descripcion' => $data['descripcion'] ?? null,
-            'media_id' => $data['media_id'] ?? null
+            'contenido' => $data['contenido'] ?? $publicacion->contenido,
+            'estado' => $data['estado'] ?? $publicacion->estado,
         ]);
 
-        if(isset($data['redes'])){
-            $publicacion->reds()->sync($data['redes']);
+        if(isset($data['reds'])){
+            $publicacion->reds()->sync($data['reds']);
         }
-
+        //Cargamos 'pieza.media' para que React reciba la url de la imagen.
         return response()->json([
             'message' => 'Publicación actualizada',
-            'data' => $publicacion->load('pieza','media','reds')
+            'data' => $publicacion->load('piezas.medias','reds')
         ]);
     }
     /**
@@ -127,20 +133,52 @@ class PublicacionController extends Controller
 
         return response()->json($publicacion);
     }
-    public function generarContenido(Request $request)
+    public function generarContenido(Request $request, OllamaService $ollama)
     {
-        $tema = $request->tema;
-
-        $respuesta = OpenAI::chat()->create([
-            'model' => 'gpt-4o-mini',
-            'messages' => [
-                ['role' => 'system', 'content' => 'Eres un generador de contenido para publicaciones.'],
-                ['role' => 'user', 'content' => "Genera un texto para una publicación sobre: $tema"],
-            ],
+        //Validamos que la pieza existe.
+        $request->validate([
+            'pieza_id' => 'required|exists:piezas,id',
+            'estilo' => 'nullable|string',//Ej: "vintage", "minimalista",
         ]);
 
-        return [
-            "contenido" => $respuesta['choices'][0]['message']['content']
-        ];
+        //Buscamos la pieza y su imagen.
+        $pieza = Pieza::with('medias')->findOrFail($request->pieza_id);
+
+        // Recuperamos el estilo del request o usamos uno por defecto
+        $estilo = $request->input('estilo', 'profesional');
+
+        //Promp adaptado al negocio.
+        $prompt = "Respondo solo con el texto de la publicación, sin comentarios adicionales del tipo 'Aquí tienes tu texto'. Actúa como un experto en marketing digital.
+               Analiza la imagen de esta pieza: '{$pieza->nombre}'.
+               Genera el contenido de una publicación para redes sociales.
+               USA UN ESTILO DE REDACCIÓN: {$estilo}.";
+               /*El texto debe ser para la columna 'contenido' de la base de datos."*/
+
+        //Como 'medias es HasMany o BelongsToMany (varias) tomamos la primera imagen disponible.
+        $primeraImagen = $pieza->medias->where('tipo', 'imagen')->first();
+        if(!$primeraImagen){
+            return response()->json(['error'=>'La pieza no tiene ninguna imagen asociada.'],404);
+        }
+
+
+        //La Pieza tiene relacion con la imagen y guarda el path local(storage/app/public).
+        $imagePath = storage_path('app/public/' . $primeraImagen->path);
+
+        if(!file_exists($imagePath)){
+            return response()->json(['error'=> 'La imagen de la pieza no existe en: '. $imagePath],404);
+        }
+
+        //Llama a ollama (Contenedor local).
+        try{
+            $contenido = $ollama->generateCaption($imagePath, $prompt);
+            return response()->json([
+                'titulo' => 'Descubre mi última creación: '. $pieza->nombre,
+                'contenido' => $contenido,
+                'pieza' => $pieza
+            ]);
+        }catch(\Exception $e){
+            return response()->json(['error'=>'Error en el motor de la IA local' . $e->getMessage()], 500);
+        }
     }
+
 }

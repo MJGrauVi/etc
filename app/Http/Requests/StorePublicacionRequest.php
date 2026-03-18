@@ -22,10 +22,23 @@ class StorePublicacionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'pieza_id' => 'required|exists:piezas,id',
             'titulo' => 'required|string|max:255',
-            'contenido' => 'required|string|max:10000',
-            'estado' => 'required|string|max:255',
+            'contenido' => 'nullable|string|max:10000',
+            'redes' => 'nullable|array',
+            'redes.*' => 'exists:reds|id',
+            //Si el usuario sube la foro en ese instante.
+            'imagen' => 'nullable|array',
+            'estado' => 'required|image|mimes:jpeg,jpg,png|max:5128',
         ];
 
+    }
+    public function messages(): array{
+        return [
+            'pieza_id.exists' => 'La Pieza id no es válida.',
+            'titulo.required' => 'El titulo es requerido.',
+            'imagen.image' => 'El archivo debe ser una imagen real.',
+            'imagen.max' => 'La imagen es muy pesada para el procesamiento local(max 5MB).',
+        ];
     }
 }

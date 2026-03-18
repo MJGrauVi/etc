@@ -30,14 +30,10 @@ class Publicacion extends Model
     public function piezas():BelongsTo{
         return $this->belongsTo(Pieza::class);
     }
-    public function medias():BelongsTo{
-        return $this->belongsTo(Media::class);
-    }
 
     public function reds():BelongsToMany{
         return $this->belongsToMany(Red::class);
     }
-
 
     public function publicar()
     {
