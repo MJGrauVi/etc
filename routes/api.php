@@ -8,15 +8,27 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MediaController;
+use App\Services\GeminiService;
+/************************************************************/
+// routes/web.php
+Route::get('/test-key', function () {
+    return "La clave configurada es: " . config('services.gemini.key');
+});
 
+/*************************************************************/
 //Route::get('/test', fn() => 'ESTE ES MI LARAVEL');
 
-/*Route::post('/media', function (Request $request) {
-    return [
-        'content_type' => $request->header('Content-Type'),
-        'has_file' => $request->hasFile('file'),
-        'all' => $request->all(), ];
-});*/
+Route::get('/test-gemini', function () {
+    $service = new GeminiService();
+
+    $imagePath = storage_path("app/public/imagenes/peldanosEscalera.jpeg");
+
+    $prompt = "Describe esta imagen y genera título y hashtags.";
+
+    $resultado = $service->generateCaption($imagePath, $prompt);
+
+    dd($resultado);
+});
 
 //Pruebas en postman incluir /api/.....
 Route::post('/register', [UserController::class, 'store']);//ok

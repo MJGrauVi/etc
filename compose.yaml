@@ -23,14 +23,17 @@ services:
             - sail
         depends_on:
             - pgsql
-            - ollama
-    ollama:
-        image: ollama/ollama:latest
-        container_name: ollama
-        volumes:
-            - 'sail-ollama:/root/.ollama'
+            - mailpit
+
+    mailpit:
+        image: axllent/mailpit:latest
+        container_name: mailpit
+        restart: unless-stopped
+        ports:
+            - "8025:8025" #web UI
+            - "1025:1025" #SMTP
         networks:
-            - sail
+            - sail #debe estar en la misma red que laravel.text
 
     pgsql:
         image: 'postgres:18-alpine'
@@ -63,5 +66,4 @@ networks:
 volumes:
     sail-pgsql:
         driver: local
-    sail-ollama:
-        driver: local
+

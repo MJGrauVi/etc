@@ -71,4 +71,12 @@ class PublicacionPolicy
     {
         return false;
     }
+    /**
+     * Determina si el usuario puede generar contenido con IA para una pieza.
+     */
+    public function generate(User $user, Pieza $pieza): bool
+    {
+        // El admin puede todo, o el dueño de la pieza puede generar contenido para ella
+        return $user->hasRole('Administrador') || $pieza->user_id === $user->id;
+    }
 }

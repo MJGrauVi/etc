@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePublicacionRequest;
 use App\Http\Requests\UpdatePublicacionRequest;
-use App\Services\OllamaService;
+use Illuminate\Support\Facades\Log;
+use App\Services\GeminiService;
 use App\Models\Pieza;
 use App\Models\Publicacion;
 use Illuminate\Http\Request;
@@ -12,18 +13,26 @@ use Illuminate\Http\Request;
 
 class PublicacionController extends Controller
 {
+
+    //Definimos la variable protegida.
+    protected $gemini;
+
+    //Int¡yectamos el servicio aquí.
+    public function __construct(GeminiService $gemini){
+        $this->gemini = $gemini;
+    }
     /**
-     * Display a listing of the resource.
+     * Mostrar un listado del recurso.
      */
     public function index() {
         $user = auth()->user();
         // Autorizar acceso general
         $this->authorize('viewAny', Publicacion::class);
 
-        // Ajuste: Cargamos pieza.media porque media no cuelga de publicacion
+        // Ajuste: Cargamos piezas.medias porque media no cuelga de publicacion
         $query = Publicacion::with(['piezas.medias', 'reds']);
 
-        // Si es admin → ver todas
+        // Si es admin puede ver todas.
         if (!$user->hasRole('Administrador')) {
             $query->whereHas('piezas', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
@@ -76,7 +85,7 @@ class PublicacionController extends Controller
     {
         $this->authorize('view', $publicacion);
 
-        $publicacion->load('pieza','media','reds');
+        $publicacion->load('piezas.medias','reds');
 
         return response()->json($publicacion);
     }
@@ -127,57 +136,86 @@ class PublicacionController extends Controller
     }
     public function publicar(Publicacion $publicacion)
     {
+        $pieza = $publicacion->piezas()->first();
+        // Seguridad ¿Es su pieza?
+        $this->authorize('generate', [Publicacion::class, $pieza]);
         $this->authorize('update', $publicacion);
 
         $publicacion->publicar();
 
         return response()->json($publicacion);
     }
-    public function generarContenido(Request $request, OllamaService $ollama)
+
+    public function generarContenido(Request $request)
     {
-        //Validamos que la pieza existe.
         $request->validate([
             'pieza_id' => 'required|exists:piezas,id',
-            'estilo' => 'nullable|string',//Ej: "vintage", "minimalista",
+            'estilo' => 'nullable|string',
         ]);
 
-        //Buscamos la pieza y su imagen.
         $pieza = Pieza::with('medias')->findOrFail($request->pieza_id);
+        $primeraImagen = $pieza->medias->first();
 
-        // Recuperamos el estilo del request o usamos uno por defecto
-        $estilo = $request->input('estilo', 'profesional');
-
-        //Promp adaptado al negocio.
-        $prompt = "Respondo solo con el texto de la publicación, sin comentarios adicionales del tipo 'Aquí tienes tu texto'. Actúa como un experto en marketing digital.
-               Analiza la imagen de esta pieza: '{$pieza->nombre}'.
-               Genera el contenido de una publicación para redes sociales.
-               USA UN ESTILO DE REDACCIÓN: {$estilo}.";
-               /*El texto debe ser para la columna 'contenido' de la base de datos."*/
-
-        //Como 'medias es HasMany o BelongsToMany (varias) tomamos la primera imagen disponible.
-        $primeraImagen = $pieza->medias->where('tipo', 'imagen')->first();
         if(!$primeraImagen){
-            return response()->json(['error'=>'La pieza no tiene ninguna imagen asociada.'],404);
+            return response()->json(['error'=>'La pieza no tiene ninguna imagen asociada.'],422);
         }
 
-
-        //La Pieza tiene relacion con la imagen y guarda el path local(storage/app/public).
         $imagePath = storage_path('app/public/' . $primeraImagen->path);
 
-        if(!file_exists($imagePath)){
-            return response()->json(['error'=> 'La imagen de la pieza no existe en: '. $imagePath],404);
+        if(!$imagePath || !file_exists($imagePath)){
+            return response()->json([
+                'error'=> 'Imagen no encontrada',
+                'ruta_intentada' => $imagePath
+            ],404);
         }
 
-        //Llama a ollama (Contenedor local).
         try{
-            $contenido = $ollama->generateCaption($imagePath, $prompt);
+            $estilo = $request->estilo ?? 'profesional y creativo';
+            $prompt = "Actúa como un experto en Marketing Digital para artesanos.
+            Analiza esta imagen de una pieza llamada '{$pieza->nombre}' y genera:
+            1. Un título llamativo (máximo 10 palabras).
+            2. Una descripción emocional y profesional para Instagram (menciona texturas y materiales).
+            3. Una lista de 5 hashtags relevantes.
+
+            IMPORTANTE: Devuelve la respuesta con este formato:
+            Título: [Aquí el título]
+            Contenido: [Aquí la descripción]
+            Hashtags: [Aquí los hashtags]";
+
+            // Llamada al servicio (usando tus variables)
+            $contenido = $this->gemini->generateCaption($imagePath, $prompt);
+
+            // --- ESTE ES EL CAMBIO CLAVE PARA EL TEST ---
+            // Si el contenido trae un mensaje de error, cortamos aquí para verlo en Postman
+            if (!is_string($contenido) || preg_match('/error|detalle|excepcion|not_found|invalid/i', $contenido)) {
+                return response()->json([
+                    'success' => false,
+                    'error_ia' => $contenido, // Aquí verás el error real de Google
+                    'debug_path' => $imagePath
+                ], 500);
+            }
+
+            $publicacion = new Publicacion();
+            $publicacion->user_id = auth()->id() ?? 1; // Fallback al ID 1 para el test de Postman
+            $publicacion->pieza_id = $pieza->id;
+            $publicacion->titulo = 'Sugerencia IA: ' . $pieza->nombre;
+            $publicacion->contenido = $contenido;
+            $publicacion->estado = 'borrador';
+            $publicacion->save();
+
+            $publicacion->refresh();
+
+            Log::info("Contenido guardado en ID " . $publicacion->id . ": " . $publicacion->contenido);
+
             return response()->json([
-                'titulo' => 'Descubre mi última creación: '. $pieza->nombre,
-                'contenido' => $contenido,
-                'pieza' => $pieza
-            ]);
-        }catch(\Exception $e){
-            return response()->json(['error'=>'Error en el motor de la IA local' . $e->getMessage()], 500);
+                'success' => true,
+                'message' => 'Publicación generada y guardada como borrador',
+                'data'    => $publicacion->load('piezas.medias')
+            ], 201);
+
+        } catch(\Exception $e) {
+            Log::error("IA Error: " . $e->getMessage());
+            return response()->json(['error'=> 'Excepción: ' . $e->getMessage()], 500);
         }
     }
 

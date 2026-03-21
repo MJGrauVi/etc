@@ -28,8 +28,14 @@ protected static function booted(){
           Storage::disk('public')->delete($media->path);
       });
 }
-public function getUrlAttribute(){
-      return asset('storage/' . $this->path);
-}
+// En el modelo Media.php
+
+    protected $appends = ['url_completa'];
+
+    public function getUrlCompletaAttribute()
+    {
+        // Esto convierte 'imagenes/ducha.jpg' en 'http://localhost/storage/imagenes/ducha.jpg'
+        return asset('storage/' . $this->path);
+    }
 
 }

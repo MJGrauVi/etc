@@ -12,6 +12,7 @@ class Publicacion extends Model
 {
     /** @use HasFactory<\Database\Factories\PublicacionFactory> */
     use HasFactory;
+
     protected $table = 'publicacions';
 
     /*Un usuario puede tener muchas piezas
@@ -29,6 +30,16 @@ class Publicacion extends Model
 
     public function piezas():BelongsTo{
         return $this->belongsTo(Pieza::class);
+    }
+    public function medias():HasManyThrough{
+        return $this->hasManyThrough(
+            Media::class,
+            Pieza::class,
+            'id',
+            'pieza_id',
+            'pieza_id',
+            'id'
+        );
     }
 
     public function reds():BelongsToMany{

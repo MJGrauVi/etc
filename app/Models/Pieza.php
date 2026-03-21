@@ -11,6 +11,8 @@ class Pieza extends Model
 {
     /** @use HasFactory<\Database\Factories\PiezaFactory> */
     use HasFactory;
+
+    protected $table = 'piezas';
     protected $fillable = [
         'user_id',
         'nombre',

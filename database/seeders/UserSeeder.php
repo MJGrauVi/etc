@@ -79,7 +79,7 @@ class UserSeeder extends Seeder
             [
                 'nombre' => 'Peldaños desiguales en madera.',
                 'descripcion' => 'Peldaños de escalera de madera con incrustaciones en nogal acabado exposi brillo.',
-                'imagen' => 'peldanoEscalera.jpeg',
+                'imagen' => 'peldanosEscalera.jpeg',
                 'user' => $userNormal
             ],
         ];
