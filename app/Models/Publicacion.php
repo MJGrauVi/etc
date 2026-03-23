@@ -29,7 +29,7 @@ class Publicacion extends Model
         ];
 
     public function piezas():BelongsTo{
-        return $this->belongsTo(Pieza::class);
+        return $this->belongsTo(Pieza::class, 'pieza_id');
     }
     public function medias():HasManyThrough{
         return $this->hasManyThrough(

@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Log;
 
 class GeminiService
 {
-    // 1. Usamos el modelo exacto que funciona en el patrón de éxito
+    // Usamos el modelo exacto que funciona para leer la imagen.
     protected $model = "gemini-3-flash-preview";
 
-    // El endpoint base para la v1beta
+    // El endpoint base para la v1beta.
     protected $baseUrl = "https://generativelanguage.googleapis.com/v1beta";
 
     public function generateCaption($imagePath, $prompt)
@@ -22,7 +22,7 @@ class GeminiService
         }
 
         try {
-            // Preparamos la imagen
+            // Preparamos la imagen.
             if (!file_exists($imagePath)) {
                 return "ERROR: La imagen no existe en la ruta: {$imagePath}";
             }
@@ -38,7 +38,7 @@ class GeminiService
             $response = Http::withoutVerifying()
                 ->timeout(30)
                 ->withHeaders([
-                    // ESTA ES LA CLAVE: El Header del curl que funciona
+                    // ESTA ES LA CLAVE: El Header del curl que funciona.
                     'x-goog-api-key' => $apiKey,
                     'Content-Type' => 'application/json',
                 ])
@@ -48,7 +48,7 @@ class GeminiService
                             'parts' => [
                                 // Estructura idéntica al curl, añadiendo la imagen
                                 [
-                                    'text' => $prompt // Tu pregunta/instrucción
+                                    'text' => $prompt // La instrucción.
                                 ],
                                 [
                                     'inline_data' => [
@@ -68,7 +68,7 @@ class GeminiService
 
             $res = $response->json();
 
-            // Verificamos si la respuesta tiene la estructura esperada en 2026
+            // Verificamos si la respuesta tiene la estructura esperada en 2026.
             if(!isset($res['candidates'][0]['content']['parts'][0]['text'])) {
                 // A veces, si no hay candidatos, el modelo devuelve un mensaje de seguridad
                 if (isset($res['promptFeedback']['blockReason'])) {
@@ -77,7 +77,7 @@ class GeminiService
                 return "ERROR: Respuesta inesperada de Gemini: " . json_encode($res, JSON_UNESCAPED_UNICODE);
             }
 
-            // Extraemos el texto de la descripción
+            // Extraemos el texto de la descripción.
             $text = $res['candidates'][0]['content']['parts'][0]['text'];
 
             if (trim($text) === '') {

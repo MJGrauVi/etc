@@ -52,8 +52,15 @@ class PublicacionPolicy
      */
     public function delete(User $user, Publicacion $publicacion)
     {
-        return $user->hasRole('Administrador')
-            || $publicacion->pieza->user_id === $user->id;
+        // El Administrador siempre tiene permiso (Poder absoluto).
+        if ($user->hasRole('Administrador')) {
+            return true;
+        }
+
+        // El autor de la publicación puede borrar sus publicaciones.
+        // Comparamos el ID del usuario logueado ($user->id) con el
+        // del creador de la publicación ($publicacion->user_id)
+        return $user->id === $publicacion->user_id;
     }
 
     /**
