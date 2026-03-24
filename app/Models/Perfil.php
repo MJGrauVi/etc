@@ -32,7 +32,7 @@ class Perfil extends Model
     protected $appends = ['logo_url'];
 
     // Para que no falle el factory.:
-    //protected $hidden = ['logo_url'];
+    protected $hidden = ['logo_url'];
     Public function getLogoUrlAttribute(){
         //Si hay logo devuelve la url completa, sino null.
         return $this->logo ? asset('storage/' . $this->logo) : null;

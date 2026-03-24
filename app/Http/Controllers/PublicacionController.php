@@ -41,13 +41,6 @@ class PublicacionController extends Controller
         return response()->json($query->get());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //Solo para blade.
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -262,10 +255,14 @@ class PublicacionController extends Controller
 
             // --- ESTE ES EL CAMBIO CLAVE PARA EL TEST ---
             // Si el contenido trae un mensaje de error, cortamos aquí para verlo en Postman
-            if (!is_string($contenido) || preg_match('/error|detalle|excepcion|not_found|invalid/i', $contenido)) {
+            if (
+                str_starts_with($contenido, "ERROR") ||
+                str_starts_with($contenido, "DETALLE_GOOGLE") ||
+                str_starts_with($contenido, "EXCEPCION_CONEXION")
+            ) {
                 return response()->json([
                     'success' => false,
-                    'error_ia' => $contenido, // Aquí verás el error real de Google
+                    'error_ia' => $contenido,
                     'debug_path' => $imagePath
                 ], 500);
             }

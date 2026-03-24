@@ -72,9 +72,5 @@ class User extends Authenticatable
         return $this->hasOne(Perfil::class);
     }
 
-   // public static function o
-   /* public function publicacions(): HasMany{
-        return $this->hasMany(Publicacion::class);
-    }*/
 
 }

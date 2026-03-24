@@ -12,19 +12,24 @@ class MediaSeeder extends Seeder {
 */
     public function run(): void
     {
-        $pieza = Pieza::first(); // Asignamos a la primera pieza creada en PiezaSeeder
-        $pieza1 = Pieza::first();
-        $fotoPieza = 'seeders/images/fotos/abanderadaInfantil.jpg';
+       // $pieza = Pieza::first(); // Asignamos a la primera pieza creada en PiezaSeeder
+       // $user = User::where('email', 'titufas@gmail.com')->first();
+   /*     $pieza = Pieza::first();
+        $fotoFuente = 'seeders/images/fotos/abanderadaInfantil.jpeg';
 
-        if (File::exists(database_path($fotoPieza))) {
-            $pathDestino = 'piezas/abanderada_seed.jpg';
-            Storage::disk('public')->put($pathDestino, File::get(database_path($fotoPieza)));
+        if (File::exists(database_path($fotoFuente))) {
+            //El destino donde la API busca la imagen lara leerla.(creamos la carpeta imagenes dentro de public).
+            $pathDestino = 'imagenes/abanderadaInfantil.jpeg';
+            Storage::disk('public')->put($pathDestino, File::get(database_path($fotoFuente)));
 
             // Creamos el registro en la tabla medias
-            $pieza1->medias()->create([
-                'url' => $pathDestino,
-                'tipo' => 'image'
+            Media::create([
+                'pieza_id' => $pieza->id,
+                'nombre_original' => $nombreArchivo,
+                'tipo' => 'imagen',
+                'path' => 'imagenes/' . $nombreArchivo,
+                'es_portada' => false,
             ]);
-        }
+        }*/
     }
 }
