@@ -52,7 +52,7 @@ class PublicacionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePublicacionRequest $request) {
+    public function store_generate(StorePublicacionRequest $request) {
         $data = $request->validated();
         // 1. Obtener la pieza.
         $pieza = Pieza::findOrFail($data['pieza_id']);
@@ -75,6 +75,66 @@ class PublicacionController extends Controller
             'message' => 'Publicación lista para redes sociales.',
             'data' => $publicacion->load('piezas.medias', 'reds')
             /*'data' => $publicacion->load('piezas', 'medias', 'reds')*/
+        ], 201);
+    }
+
+    public function store(StorePublicacionRequest $request)
+    {
+        // 1. Datos ya validados por tu FormRequest
+        $data = $request->validated();
+
+        // 2. Obtener la pieza con sus medias (Eager Loading para eficiencia)
+        $pieza = Pieza::with('medias')->findOrFail($data['pieza_id']);
+
+        // 3. Autorizar (Se mantiene tu lógica)
+        $this->authorize('create', [Publicacion::class, $pieza]);
+
+        // 4. Lógica de Contenido: Si el usuario no envía contenido, usamos la IA
+        $contenidoFinal = $data['contenido'] ?? null;
+
+        if (empty($contenidoFinal)) {
+            $primeraImagen = $pieza->medias->first();
+
+            if (!$primeraImagen) {
+                return response()->json(['error' => 'La pieza no tiene imágenes para analizar.'], 422);
+            }
+
+            // Construimos la ruta y llamamos al servicio inyectado ($this->gemini)
+            $imagePath = storage_path('app/public/' . $primeraImagen->path);
+
+            if (file_exists($imagePath)) {
+                $prompt = "Analiza esta pieza llamada '{$pieza->nombre}' y genera un título y descripción.";
+                $contenidoFinal = $this->gemini->generateCaption($imagePath, $prompt);
+            }
+        }
+
+        // 5. Crear la publicación (Limpio y estándar)
+        $publicacion = Publicacion::create([
+            'titulo' => $data['titulo'] ?? "Sug: {$pieza->nombre}",
+            'contenido' => $contenidoFinal,
+            'pieza_id' => $pieza->id,
+            'user_id' => auth()->id(),
+            'estado' => 'borrador'
+        ]);
+
+        // 6. Relaciones N:N
+        if (!empty($data['reds'])) {
+            $redesConDatos = [];
+
+            foreach ($data['reds'] as $redId) {
+                $redesConDatos[$redId] = [
+                    // Guardamos la fecha de alerta: hoy + 3 meses.
+                    'fecha_vencimiento' => now()->addMonths(3)
+                ];
+            }
+            // sync() se encarga de todo:
+            // 1. Pone la fecha de hoy en 'created_at' (Publicación)
+            // 2. Pone la fecha de hoy + 3 meses en 'fecha_vencimiento' (Alerta)
+            $publicacion->reds()->sync($redesConDatos);
+        }
+        return response()->json([
+            'message' => 'Publicación creada exitosamente.',
+            'data' => $publicacion->load('piezas.medias', 'reds')
         ], 201);
     }
 
@@ -132,6 +192,21 @@ class PublicacionController extends Controller
 
         return response()->json([
             'message' => 'Publicación eliminada'
+        ]);
+    }
+
+    Public function alertaVencimiento(){
+        //Buscamos en la tabla pivor las relaciones que vencen en 7 días.
+        $alertas = auth()->user()->piezas()-with(['publicaciones.reds', function($query){
+            $query->wherePivot('fecha_vencimiento', '<=', now()->addDays(7));
+
+    }])->get()->pluck('publicacions')-flatten()->filter(function($p){
+        return $p->reds->isNotEmpty();
+            });
+        return response()->json([
+            "error"=>false,
+            "mensajes"=>"Tiene " . $alertas->count() . "publicaciones próximas a vencer.",
+            "data"=>$alertas
         ]);
     }
     public function publicar(Publicacion $publicacion)

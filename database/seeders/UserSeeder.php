@@ -6,7 +6,9 @@ use App\Models\Media;
 use App\Models\User;
 use App\Models\Pieza;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserSeeder extends Seeder
 {
@@ -98,6 +100,19 @@ class UserSeeder extends Seeder
                 'path' => 'imagenes/' . $pieza['imagen'],
                 'es_portada' => true,
             ]);
+        }
+        /***********************************************/
+        $user = User::factory()->create(['email' => 'titufas@gmail.com']);
+
+        // Ruta en la carpeta de seeders
+        $fotoLogo = 'seeders/images/logos/logoTitufa11.png';
+
+        if (File::exists(database_path($fotoLogo))) {
+            $pathDestino = 'logos/logo_seed.png';
+            Storage::disk('public')->put($pathDestino, File::get(database_path($fotoLogo)));
+
+            // Actualizamos el perfil que creó el Observer
+            $user->perfil->update(['logo' => $pathDestino]);
         }
     }
 }

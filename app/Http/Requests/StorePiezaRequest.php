@@ -27,6 +27,9 @@ class StorePiezaRequest extends FormRequest
             'descripcion' => 'required|string|max:255',
             'categoria' => 'nullable|string|max:100',
             'precio' => 'nullable|numeric|min:0',
+            // Validamos que 'fotos' sea un array y que cada elemento sea una imagen.
+            'fotos' => 'nullable|array',
+            'fotos.*' => 'image|mimes:jpeg,png,jpg|max:2048'
         ];
     }
 }

@@ -20,6 +20,7 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens, HasRoles;
 
+    //use Notifiable activa los métodos $user->notify() y $user->notifications.
     /**
      * The attributes that are mass assignable.
      *

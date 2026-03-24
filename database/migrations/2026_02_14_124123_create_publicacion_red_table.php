@@ -16,7 +16,9 @@ return new class extends Migration
             $table->foreignId('publicacion_id')->constrained('publicacions')->cascadeOnDelete();
             $table->foreignId('red_id')->constrained('reds')->cascadeOnDelete();
             $table->primary(['publicacion_id', 'red_id']);
-            $table->date('fecha_vencimiento')->default(Carbon::now()->addMonth(3));
+            //Fecha para alerta(sin valor por defecto en BD.
+            $table->date('fecha_vencimiento')->nullable();
+            //Fecha de publicacion y actualización.
             $table->timestamps();
         });
     }

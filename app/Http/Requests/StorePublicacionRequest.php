@@ -29,7 +29,7 @@ class StorePublicacionRequest extends FormRequest
             'redes.*' => 'exists:reds|id',
             //Si el usuario sube la foro en ese instante.
             'imagen' => 'nullable|array',
-            'estado' => 'required|image|mimes:jpeg,jpg,png|max:5128',
+            'estado' => 'nullable|string|in:borrador, publicado',
         ];
 
     }

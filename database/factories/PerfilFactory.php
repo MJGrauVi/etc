@@ -20,10 +20,10 @@ class PerfilFactory extends Factory
             'tipo_documento' => $this->faker->randomElement(['nif', 'cif', 'nie']),
             'documento' => $this->faker->bothify('########?'),
             'movil' => $this->faker->phoneNumber(),
-            'logo' => null,
+            'logo' => null,//Guardamos el path, no la URL.
             'descripcion' => $this->faker->sentence(10),
             'web' => $this->faker->url(),
-            'redes_sociales' => ['instagram' => $this->faker->url(),'facebook' => $this->faker->url(),
+            'redes_sociales' => ['instagram' => $this->faker->url(),'facebook' => $this->faker->url(), 'linkedin' => $this->faker->url(),
             ],
         ];
     }

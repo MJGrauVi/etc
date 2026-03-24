@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PiezaController;
 use App\Http\Controllers\PublicacionController;
@@ -83,7 +84,25 @@ Route::middleware('auth:sanctum')->group(function () {
     //Muestra las url de las imagenes en storage.
    // Route::middleware('auth:sanctum')->get('imagenes/storage', [MediaController::class, 'listarImagenesStorage']);
 
-    Route::get('/user/perfil', [PerfilController::class, 'show']);
+    /* Obtener los datos del perfil.***********************************************************/
+    Route::get('/perfil', [PerfilController::class, 'show']);
+
+    // Actualizar datos de texto (NIF, móvil, web, etc.).
     Route::put('/perfil', [PerfilController::class, 'update']);
-    Route::post('/user/perfil/logo', [PerfilController::class, 'uploadLogo']);
+
+    // Subir o actualizar solo el logo (POST porque es un archivo).
+    Route::post('/perfil/logo', [PerfilController::class, 'uploadLogo']);
+
+    /*Sistema de notificaciones para el vencimiento de las publicaciones.***********************/
+    // 1. Obtener todas las notificaciones (leídas y no leídas).
+    Route::get('/notificaciones', [NotificacionController::class, 'index']);
+
+    // 2. Obtener SOLO las no leídas (ideal para el contador de la campana).
+    Route::get('/notificaciones/unread', [NotificacionController::class, 'unread']);
+
+    // 3. Marcar una notificación específica como leída.
+    Route::post('/notificaciones/{id}/read', [NotificacionController::class, 'markAsRead']);
+
+    // 4. Marcar TODAS como leídas (el típico botón "Limpiar todo").
+    Route::post('/notificaciones/read-all', [NotificacionController::class, 'markAllAsRead']);
 });

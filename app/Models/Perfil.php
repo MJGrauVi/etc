@@ -28,6 +28,15 @@ class Perfil extends Model
     protected $casts = [
         'redes_sociales' => 'array',
     ];
+
+    protected $appends = ['logo_url'];
+
+    // Para que no falle el factory.:
+    //protected $hidden = ['logo_url'];
+    Public function getLogoUrlAttribute(){
+        //Si hay logo devuelve la url completa, sino null.
+        return $this->logo ? asset('storage/' . $this->logo) : null;
+    }
     public function user(){
         return $this->belongsTo(User::class);
     }

@@ -43,7 +43,7 @@ class Publicacion extends Model
     }
 
     public function reds():BelongsToMany{
-        return $this->belongsToMany(Red::class);
+        return $this->belongsToMany(Red::class, 'publicacion_red')->withPivot('fecha_vencimiento')->withTimestamps();
     }
 
     public function publicar()
@@ -57,6 +57,11 @@ class Publicacion extends Model
 
 
         ]);
+    }
+    public function users()
+    {
+        // Una publicación PERTENECE a un usuario
+        return $this->belongsTo(User::class);
     }
 
 }
