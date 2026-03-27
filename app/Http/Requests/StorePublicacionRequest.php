@@ -23,7 +23,7 @@ class StorePublicacionRequest extends FormRequest
     {
         return [
             'pieza_id' => 'required|exists:piezas,id',
-            'titulo' => 'required|string|max:255',
+            'titulo' => 'nullable|string|max:255',
             'contenido' => 'nullable|string|max:10000',
             'redes' => 'nullable|array',
             'redes.*' => 'exists:reds|id',

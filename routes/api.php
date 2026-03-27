@@ -6,6 +6,7 @@ use App\Http\Controllers\PiezaController;
 use App\Http\Controllers\PublicacionController;
 use App\Http\Controllers\PublicacionRedController;
 use App\Http\Controllers\UserController;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MediaController;
@@ -36,9 +37,42 @@ Route::post('/register', [UserController::class, 'store']);//ok
 //Para login: http://localhost/api/user/login (añadir Bearer Token y Content-Type)
 Route::post('/login', [UserController::class, 'verify']);//ok
 
+/********************************************************************************/
+//Añadimos verificacion de emai.
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Support\Facades\URL;
+
+Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
+
+    // 1. Validar firma del enlace
+    if (! URL::hasValidSignature($request)) {
+        return response()->json(['message' => 'El enlace no es válido o ha expirado.'], 401);
+    }
+
+    // 2. Buscar usuario
+    $user = User::find($id);
+
+    if (! $user) {
+        return response()->json(['message' => 'Usuario no encontrado.'], 404);
+    }
+
+    // 3. Validar hash
+    if (! hash_equals($hash, sha1($user->email))) {
+        return response()->json(['message' => 'Hash inválido.'], 403);
+    }
+
+    // 4. Verificar email si no lo está
+    if ($user->hasVerifiedEmail()) {
+        return response()->json(['message' => 'El email ya estaba verificado.']);
+    }
+
+    $user->markEmailAsVerified();
+
+    return response()->json(['message' => 'Email verificado correctamente.']);
+})->middleware('signed')->name('verification.verify');
 /************* Dentro del grupo las rutas que estan protegidas con middleware.*******************/
 //Cualquier peticion necesita token Bearer.
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum', 'verified')->group(function () {
 
     Route::get('/users', [UserController::class, 'index']);//ok admin + token.
     Route::put('/user/settings', [UserController::class, 'updateSettings']);

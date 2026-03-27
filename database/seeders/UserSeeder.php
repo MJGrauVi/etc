@@ -23,11 +23,13 @@ class UserSeeder extends Seeder
         Pieza::factory(10)->create([
             'user_id' => $users->random()->id
         ]);
+
         //Creación de usuarios fijos.
         $admin = User::create([
             'nombre' => 'Admin',
             "email" => 'admin@admin.com',
             "password" => Hash::make('123456'),
+            'email_verified_at' => now(),
         ])->assignRole('Administrador');
         $logoEtc = 'seeders/images/logos/logoEtc.svg';
 
@@ -48,17 +50,21 @@ class UserSeeder extends Seeder
             'nombre' => 'Usuario',
             'email' => 'usuario@usuario.com',
             "password" => Hash::make('123456'),
+            'email_verified_at' => now(),
         ])->assignRole('Usuario');
 
         $invitado = User::create([
             'nombre' => 'Invitado',
             "email" => 'invitado@invitado.com',
             "password" => Hash::make('123456'),
+            'email_verified_at' => now(),
         ])->assignRole('Invitado');
+
         $creador = User::create([
             'nombre' => 'Creador',
             "email" => 'creador@creador.com',
             "password" => Hash::make('123456'),
+            'email_verified_at' => now(),
         ])->assignRole('Usuario');
 
 
@@ -66,7 +72,9 @@ class UserSeeder extends Seeder
         $userTitufa = User::create([
             'nombre'=>'Titufas',
             'email' => 'titufas@gmail.com',
+            'email_verified_at' => now(),
             'password' => '123456'])->assignRole('Usuario');
+
         // Ruta en la carpeta de seeders (viaja con el código).
         $fotoLogo = 'seeders/images/logos/logoTitufa11.png';
 

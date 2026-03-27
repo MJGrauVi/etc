@@ -22,14 +22,14 @@ class PublicacionController extends Controller
         $this->gemini = $gemini;
     }
     /**
-     * Mostrar un listado del recurso.
+     * Listado de publicaciones (Admin ve todas, Usuario las suyas).
      */
     public function index() {
         $user = auth()->user();
         // Autorizar acceso general
         $this->authorize('viewAny', Publicacion::class);
 
-        // Ajuste: Cargamos piezas.medias porque media no cuelga de publicacion
+        // Ajuste: Cargamos piezas.medias porque media no cuelga de publicacion.
         $query = Publicacion::with(['piezas.medias', 'reds']);
 
         // Si es admin puede ver todas.
@@ -41,98 +41,95 @@ class PublicacionController extends Controller
         return response()->json($query->get());
     }
 
-
     /**
-     * Store a newly created resource in storage.
+     * Crear publicación (Usa IA si el contenido está vacío).
      */
-    public function store_generate(StorePublicacionRequest $request) {
-        $data = $request->validated();
-        // 1. Obtener la pieza.
-        $pieza = Pieza::findOrFail($data['pieza_id']);
-
-        // 2. Autorizar usando la policy.
-        $this->authorize('create', [Publicacion::class, $pieza]);
-
-        // 3. Crear la publicación.
-        $publicacion = Publicacion::create([
-            'titulo' => $data['titulo'] ?? "Publicación de {$pieza->nombre}",
-            'contenido' => $data['contenido'] ?? null,//Contenido generado/editado.
-            'pieza_id' => $pieza->id,
-            'user_id' => auth()->id()
-            ]);
-        // 4. Sincronizar redes sociales seleccionadas. (Relación N:N con redes.)
-        if (!empty($data['reds'])) {
-            $publicacion->reds()->sync($data['reds']);
-
-        } return response()->json([
-            'message' => 'Publicación lista para redes sociales.',
-            'data' => $publicacion->load('piezas.medias', 'reds')
-            /*'data' => $publicacion->load('piezas', 'medias', 'reds')*/
-        ], 201);
-    }
-
     public function store(StorePublicacionRequest $request)
     {
-        // 1. Datos ya validados por tu FormRequest
         $data = $request->validated();
-
-        // 2. Obtener la pieza con sus medias (Eager Loading para eficiencia)
         $pieza = Pieza::with('medias')->findOrFail($data['pieza_id']);
 
-        // 3. Autorizar (Se mantiene tu lógica)
+        // Autorización mediante Policy.
         $this->authorize('create', [Publicacion::class, $pieza]);
 
-        // 4. Lógica de Contenido: Si el usuario no envía contenido, usamos la IA
+        $tituloFinal = $data['titulo'] ?? null;
         $contenidoFinal = $data['contenido'] ?? null;
+        $hashtagsFinal = '';
 
+        // Lógica de Generación con IA.
         if (empty($contenidoFinal)) {
             $primeraImagen = $pieza->medias->first();
 
-            if (!$primeraImagen) {
-                return response()->json(['error' => 'La pieza no tiene imágenes para analizar.'], 422);
-            }
+            if ($primeraImagen && file_exists($imagePath = storage_path('app/public/' . $primeraImagen->path))) {
+                try {
+                    $prompt = "Analiza la pieza '{$pieza->nombre}'. Genera EXCLUSIVAMENTE este formato, sin textos extra, sin saludos ni consejos:
+                               Título: [un título corto]
+                               Contenido: [descripción emocional y técnica]
+                               Hashtags: [5 hashtags separados por espacios]";
 
-            // Construimos la ruta y llamamos al servicio inyectado ($this->gemini)
-            $imagePath = storage_path('app/public/' . $primeraImagen->path);
+                    $raw = $this->gemini->generateCaption($imagePath, $prompt);
 
-            if (file_exists($imagePath)) {
-                $prompt = "Analiza esta pieza llamada '{$pieza->nombre}' y genera un título y descripción.";
-                $contenidoFinal = $this->gemini->generateCaption($imagePath, $prompt);
+                    // --- Extracción de datos del Raw de Gemini ---
+                    $lineas = explode("\n", $raw);
+                    $tempContenido = [];
+
+                    foreach ($lineas as $linea) {
+                        $lineaOriginal = trim($linea);
+                        // Limpiamos la línea de símbolos para detectar la etiqueta
+                        $lineaLimpia = str_replace(['*', '#', ':', ' '], '', $lineaOriginal);
+
+                        if (str_starts_with(strtolower($lineaLimpia), "título")) {
+                            $tituloFinal = trim(explode(':', $lineaOriginal, 2)[1] ?? '');
+                        } elseif (str_starts_with(strtolower($lineaLimpia), "hashtags")) {
+                            $hashtagsFinal = trim(explode(':', $lineaOriginal, 2)[1] ?? '');
+                        } elseif (str_starts_with(strtolower($lineaLimpia), "contenido")) {
+                            $tempContenido[] = trim(explode(':', $lineaOriginal, 2)[1] ?? '');
+                        } elseif (!empty($lineaOriginal) && !str_contains($lineaOriginal, '---')) {
+                            $tempContenido[] = $lineaOriginal;
+                        }
+                    }
+                    $contenidoFinal = implode("\n", $tempContenido);
+
+                } catch (\Exception $e) {
+                    Log::error("IA Error en Store: " . $e->getMessage());
+                }
             }
         }
 
-        // 5. Crear la publicación (Limpio y estándar)
+        // Formateo automático de Hashtags (Asegura el símbolo #).
+        if (!empty($hashtagsFinal)) {
+            $hashtagsFinal = collect(explode(' ', str_replace('#', '', $hashtagsFinal)))
+                ->filter()
+                ->map(fn($tag) => "#" . trim($tag))
+                ->implode(' ');
+        }
+
+        // Persistencia en Base de Datos.
         $publicacion = Publicacion::create([
-            'titulo' => $data['titulo'] ?? "Sug: {$pieza->nombre}",
-            'contenido' => $contenidoFinal,
-            'pieza_id' => $pieza->id,
-            'user_id' => auth()->id(),
-            'estado' => 'borrador'
+            'user_id'   => auth()->id(),
+            'pieza_id'  => $pieza->id,
+            'titulo'    => trim(str_replace(['*', '#'], '', $tituloFinal ?? "Publicación de {$pieza->nombre}")),
+            'contenido' => trim(str_replace(['**'], '', $contenidoFinal)),
+            'hashtags'  => $hashtagsFinal,
+            'estado'    => 'borrador'
         ]);
 
-        // 6. Relaciones N:N
+        // Sincronización con Redes Sociales (Vencimiento a 3 meses).
         if (!empty($data['reds'])) {
-            $redesConDatos = [];
-
+            $pivotData = [];
             foreach ($data['reds'] as $redId) {
-                $redesConDatos[$redId] = [
-                    // Guardamos la fecha de alerta: hoy + 3 meses.
-                    'fecha_vencimiento' => now()->addMonths(3)
-                ];
+                $pivotData[$redId] = ['fecha_vencimiento' => now()->addMonths(3)];
             }
-            // sync() se encarga de todo:
-            // 1. Pone la fecha de hoy en 'created_at' (Publicación)
-            // 2. Pone la fecha de hoy + 3 meses en 'fecha_vencimiento' (Alerta)
-            $publicacion->reds()->sync($redesConDatos);
+            $publicacion->reds()->sync($pivotData);
         }
+
         return response()->json([
-            'message' => 'Publicación creada exitosamente.',
+            'message' => 'Publicación creada correctamente',
             'data' => $publicacion->load('piezas.medias', 'reds')
         ], 201);
     }
-
     /**
-     * Display the specified resource.
+     * Ver una publicación específica.
      */
     public function show(Publicacion $publicacion)
     {
@@ -143,29 +140,23 @@ class PublicacionController extends Controller
         return response()->json($publicacion);
     }
 
+
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Publicacion $publicacion)
-    {
-        //
-    }
-    /**
-     * Update the specified resource in storage.
+     * Actualizar publicación.
      */
     public function update(UpdatePublicacionRequest $request, Publicacion $publicacion)
     {
         $this->authorize('update', $publicacion);
-
         $data = $request->validated();
 
         $publicacion->update([
-            'titulo' => $data['titulo'],
+            'titulo'    => $data['titulo'] ?? $publicacion->titulo,
             'contenido' => $data['contenido'] ?? $publicacion->contenido,
-            'estado' => $data['estado'] ?? $publicacion->estado,
+            'estado'    => $data['estado'] ?? $publicacion->estado,
+            'hashtags'  => $data['hashtags'] ?? $publicacion->hashtags,
         ]);
 
-        if(isset($data['reds'])){
+        if (isset($data['reds'])) {
             $publicacion->reds()->sync($data['reds']);
         }
         //Cargamos 'pieza.media' para que React reciba la url de la imagen.
@@ -175,7 +166,7 @@ class PublicacionController extends Controller
         ]);
     }
     /**
-     * Remove the specified resource from storage.
+     * Eliminar publicación.
      */
     public function destroy(Publicacion $publicacion)
     {
@@ -202,14 +193,15 @@ class PublicacionController extends Controller
             "data"=>$alertas
         ]);
     }
+    /**
+     * Cambiar estado a publicada.
+     */
     public function publicar(Publicacion $publicacion)
     {
         $pieza = $publicacion->piezas()->first();
-        // Seguridad ¿Es su pieza?
-        $this->authorize('generate', [Publicacion::class, $pieza]);
         $this->authorize('update', $publicacion);
 
-        $publicacion->publicar();
+        $publicacion->update(['estado' => 'publicado']);
 
         return response()->json($publicacion);
     }
@@ -266,13 +258,32 @@ class PublicacionController extends Controller
                     'debug_path' => $imagePath
                 ], 500);
             }
+            /*Separar líneas****************************************/
+            $lineas = explode("\n", $contenido);
+            $tituloIA = '';
+            $contenidoIA = '';
+            $hashtagsIA= '';
+            foreach ($lineas as $linea) {
+                $linea = trim($linea);
+                if(str_starts_with($linea, "Título: ")) {
+                    $tituloIA = trim(substr($linea, 7));
+                }elseif(str_starts_with($linea, "Contenido: ")) {
+                    $contenidoIA = trim(substr($linea, 10));
+                }elseif(str_starts_with($linea, "Hashtags: ")){
+                    $hashtagsIA = trim(substr($linea, 11));
+                }
+            }
+            /*******************************************************/
 
-            $publicacion = new Publicacion();
+           $publicacion = new Publicacion();
             $publicacion->user_id = auth()->id() ?? 1; // Fallback al ID 1 para el test de Postman
             $publicacion->pieza_id = $pieza->id;
-            $publicacion->titulo = 'Sugerencia IA: ' . $pieza->nombre;
-            $publicacion->contenido = $contenido;
+            $publicacion->titulo = $tituloIA;
+            /*$publicacion->titulo = 'Sugerencia IA: ' . $pieza->nombre;*/
+            /*$publicacion->contenido = $contenido;*/
+          $publicacion->contenido = $contenidoIA;
             $publicacion->estado = 'borrador';
+            $publicacion->hashtags = $hashtagsIA;
             $publicacion->save();
 
             $publicacion->refresh();

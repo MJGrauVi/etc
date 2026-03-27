@@ -26,8 +26,20 @@ class StoreUserRequest extends FormRequest
             "direccion"=>'nullable|string|max:255',
             "telefono"=>'nullable|string|max:255',
             "email"=>'required|email|unique:users,email',
-            /*"password"=>'required|string|min:6|confirmed',*/
-            "password"=>'required|string|min:6'
+            "password"=>'required|string|min:6|confirmed',
         ];
     }
+    public function messages()
+    {
+        return [
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'email.email' => 'El formato del correo no es válido.',
+            'email.unique' => 'Este correo ya está registrado.',
+
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min' => 'La contraseña debe tener al menos 6 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+        ];
+    }
+
 }

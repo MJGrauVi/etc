@@ -24,6 +24,7 @@ class Publicacion extends Model
         'titulo',
         'contenido',
         'estado',
+        'hashtags',
         'pieza_id',
         'user_id'
         ];
@@ -41,7 +42,9 @@ class Publicacion extends Model
             'id'
         );
     }
-
+    protected $casts = [
+        'hashtags' => 'array',
+    ];
     public function reds():BelongsToMany{
         return $this->belongsToMany(Red::class, 'publicacion_red')->withPivot('fecha_vencimiento')->withTimestamps();
     }

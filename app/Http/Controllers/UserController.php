@@ -179,8 +179,15 @@ class UserController extends Controller
                 "message"=>"Credenciales incorrectas.",
             ],401);
 
-        }else{
-            $user=Auth::user();
+        }
+        $user=Auth::user();
+        //Bloqueo si el email no está verificado.
+        if(!$user->hasVerifiedEmail()){
+            return response([
+                "error"=>true,
+                "message"=>"Debes verificar tu email antes de iniciar sesión.",
+            ], 403);
+        }
             $token=$user->createToken("auth-token")->plainTextToken;
             return response([
                 "error"=>false,
@@ -189,7 +196,7 @@ class UserController extends Controller
                 "token_type"=>"Bearer",
                 "data" => $user
             ],200);
-        }
+
     }
 
     public function logout(Request $request) {
@@ -201,14 +208,5 @@ class UserController extends Controller
             "code" => 200
         ], 200);
     }
-
-    //Obtener el perfil del usuario autenticado.
-/*    public function perfil(Request $request){
-        $user = $request->user()->load('roles');
-        return response([
-            "error" => false,
-            "data" => $user
-        ],200);
-    }*/
 
 }
