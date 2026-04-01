@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PiezaController;
@@ -139,4 +140,9 @@ Route::middleware('auth:sanctum', 'verified')->group(function () {
 
     // 4. Marcar TODAS como leídas (el típico botón "Limpiar todo").
     Route::post('/notificaciones/read-all', [NotificacionController::class, 'markAllAsRead']);
+
+    //Rutas para el panel de administración.
+
+    Route::get('/admin/usuarios', [AdminController::class, 'index']);
+    Route::put('/admin/usuarios/{id}/rol', [AdminController::class, 'cambiarRol']);
 });

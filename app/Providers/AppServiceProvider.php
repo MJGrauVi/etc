@@ -10,6 +10,7 @@ use App\Policies\MediaPolicy;
 use App\Policies\PiezaPolicy;
 use App\Policies\PublicacionPolicy;
 use App\Policies\UserPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -30,10 +31,13 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Usar esta opción con Laravel 11.
      */
-    public function boot(): void
+/*    public function boot(): void
     {
-        //
-    }
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Pieza::class, PiezaPolicy::class);
+        Gate::policy(Media::class, MediaPolicy::class);
+        Gate::policy(Publicacion::class, PublicacionPolicy::class);
+    }*/
 }
