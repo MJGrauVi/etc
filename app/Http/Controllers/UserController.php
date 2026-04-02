@@ -194,7 +194,10 @@ class UserController extends Controller
                 "message"=>"Usuario autenticado correctamente.",
                 "token"=>$token,
                 "token_type"=>"Bearer",
-                "data" => $user
+                "data"    => [
+                    ...$user->toArray(),
+                    "rol" => $user->roles->pluck('name')->first()
+                ]
             ],200);
 
     }
