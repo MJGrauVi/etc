@@ -30,11 +30,11 @@ class PublicacionController extends Controller
         $this->authorize('viewAny', Publicacion::class);
 
         // Ajuste: Cargamos piezas.medias porque media no cuelga de publicacion.
-        $query = Publicacion::with(['piezas.medias', 'reds']);
+        $query = Publicacion::with(['pieza.medias', 'reds']);
 
         // Si es admin puede ver todas.
         if (!$user->hasRole('Administrador')) {
-            $query->whereHas('piezas', function ($q) use ($user) {
+            $query->whereHas('pieza', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             });
         }
@@ -125,7 +125,7 @@ class PublicacionController extends Controller
 
         return response()->json([
             'message' => 'Publicación creada correctamente',
-            'data' => $publicacion->load('piezas.medias', 'reds')
+            'data' => $publicacion->load('pieza.medias', 'reds')
         ], 201);
     }
     /**
@@ -135,7 +135,7 @@ class PublicacionController extends Controller
     {
         $this->authorize('view', $publicacion);
 
-        $publicacion->load('piezas.medias','reds');
+        $publicacion->load('pieza.medias','reds');
 
         return response()->json($publicacion);
     }
@@ -162,7 +162,7 @@ class PublicacionController extends Controller
         //Cargamos 'pieza.media' para que React reciba la url de la imagen.
         return response()->json([
             'message' => 'Publicación actualizada',
-            'data' => $publicacion->load('piezas.medias','reds')
+            'data' => $publicacion->load('pieza.medias','reds')
         ]);
     }
     /**
@@ -198,7 +198,7 @@ class PublicacionController extends Controller
      */
     public function publicar(Publicacion $publicacion)
     {
-        $pieza = $publicacion->piezas()->first();
+        $pieza = $publicacion->pieza()->first();
         $this->authorize('update', $publicacion);
 
         $publicacion->update(['estado' => 'publicado']);
@@ -210,95 +210,103 @@ class PublicacionController extends Controller
     {
         $request->validate([
             'pieza_id' => 'required|exists:piezas,id',
-            'estilo' => 'nullable|string',
+            'estilo'   => 'nullable|string',
         ]);
 
         $pieza = Pieza::with('medias')->findOrFail($request->pieza_id);
         $primeraImagen = $pieza->medias->first();
 
-        if(!$primeraImagen){
-            return response()->json(['error'=>'La pieza no tiene ninguna imagen asociada.'],422);
+        if (!$primeraImagen) {
+            return response()->json([
+                'error' => 'La pieza no tiene ninguna imagen asociada.'
+            ], 422);
         }
 
         $imagePath = storage_path('app/public/' . $primeraImagen->path);
 
-        if(!$imagePath || !file_exists($imagePath)){
+        if (!file_exists($imagePath)) {
             return response()->json([
-                'error'=> 'Imagen no encontrada',
+                'error'          => 'Imagen no encontrada',
                 'ruta_intentada' => $imagePath
-            ],404);
+            ], 404);
         }
 
-        try{
-            $estilo = $request->estilo ?? 'profesional y creativo';
+        try {
             $prompt = "Actúa como un experto en Marketing Digital para artesanos.
-            Analiza esta imagen de una pieza llamada '{$pieza->nombre}' y genera:
-            1. Un título llamativo (máximo 10 palabras).
-            2. Una descripción emocional y profesional para Instagram (menciona texturas y materiales).
-            3. Una lista de 5 hashtags relevantes.
+        Analiza esta imagen de una pieza llamada '{$pieza->nombre}' y genera:
+        1. Un título llamativo (máximo 10 palabras).
+        2. Una descripción emocional y profesional para Instagram (menciona texturas y materiales).
+        3. Una lista de 5 hashtags relevantes.
 
-            IMPORTANTE: Devuelve la respuesta con este formato:
-            Título: [Aquí el título]
-            Contenido: [Aquí la descripción]
-            Hashtags: [Aquí los hashtags]";
+        IMPORTANTE: Devuelve la respuesta con este formato:
+        Título: [Aquí el título]
+        Contenido: [Aquí la descripción]
+        Hashtags: [Aquí los hashtags]";
 
-            // Llamada al servicio (usando tus variables)
             $contenido = $this->gemini->generateCaption($imagePath, $prompt);
 
-            // --- ESTE ES EL CAMBIO CLAVE PARA EL TEST ---
-            // Si el contenido trae un mensaje de error, cortamos aquí para verlo en Postman
             if (
                 str_starts_with($contenido, "ERROR") ||
                 str_starts_with($contenido, "DETALLE_GOOGLE") ||
                 str_starts_with($contenido, "EXCEPCION_CONEXION")
             ) {
                 return response()->json([
-                    'success' => false,
-                    'error_ia' => $contenido,
+                    'success'    => false,
+                    'error_ia'   => $contenido,
                     'debug_path' => $imagePath
                 ], 500);
             }
-            /*Separar líneas****************************************/
-            $lineas = explode("\n", $contenido);
-            $tituloIA = '';
+
+            // Extraer campos de la respuesta de Gemini
+            $lineas      = explode("\n", $contenido);
+            $tituloIA    = '';
             $contenidoIA = '';
-            $hashtagsIA= '';
+            $hashtagsIA  = '';
+
             foreach ($lineas as $linea) {
                 $linea = trim($linea);
-                if(str_starts_with($linea, "Título: ")) {
-                    $tituloIA = trim(substr($linea, 7));
-                }elseif(str_starts_with($linea, "Contenido: ")) {
-                    $contenidoIA = trim(substr($linea, 10));
-                }elseif(str_starts_with($linea, "Hashtags: ")){
-                    $hashtagsIA = trim(substr($linea, 11));
+                if (str_starts_with($linea, "Título: ")) {
+                    $tituloIA = trim(substr($linea, 8));
+                } elseif (str_starts_with($linea, "Contenido: ")) {
+                    $contenidoIA = trim(substr($linea, 11));
+                } elseif (str_starts_with($linea, "Hashtags: ")) {
+                    $hashtagsIA = trim(substr($linea, 10));
                 }
             }
-            /*******************************************************/
 
-           $publicacion = new Publicacion();
-            $publicacion->user_id = auth()->id() ?? 1; // Fallback al ID 1 para el test de Postman
-            $publicacion->pieza_id = $pieza->id;
-            $publicacion->titulo = $tituloIA;
-            /*$publicacion->titulo = 'Sugerencia IA: ' . $pieza->nombre;*/
-            /*$publicacion->contenido = $contenido;*/
-          $publicacion->contenido = $contenidoIA;
-            $publicacion->estado = 'borrador';
-            $publicacion->hashtags = $hashtagsIA;
+            // Normalizar hashtags
+            $hashtagsIA = collect(explode(' ', str_replace('#', '', $hashtagsIA)))
+                ->filter()
+                ->map(fn($tag) => '#' . trim($tag))
+                ->implode(' ');
+
+            // Limpiar título
+            $tituloIA = trim(str_replace(['*', '#', ':'], '', $tituloIA));
+
+            $publicacion = new Publicacion();
+            $publicacion->user_id   = auth()->id();
+            $publicacion->pieza_id  = $pieza->id;
+            $publicacion->titulo    = $tituloIA;
+            $publicacion->contenido = $contenidoIA;
+            $publicacion->estado    = 'borrador';
+            $publicacion->hashtags  = $hashtagsIA;
             $publicacion->save();
 
             $publicacion->refresh();
 
-            Log::info("Contenido guardado en ID " . $publicacion->id . ": " . $publicacion->contenido);
+            Log::info("Publicación generada ID {$publicacion->id} para pieza {$pieza->nombre}");
 
             return response()->json([
                 'success' => true,
                 'message' => 'Publicación generada y guardada como borrador',
-                'data'    => $publicacion->load('piezas.medias')
+                'data'    => $publicacion->load('pieza.medias') // ← singular
             ], 201);
 
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             Log::error("IA Error: " . $e->getMessage());
-            return response()->json(['error'=> 'Excepción: ' . $e->getMessage()], 500);
+            return response()->json([
+                'error' => 'Excepción: ' . $e->getMessage()
+            ], 500);
         }
     }
 

@@ -82,6 +82,10 @@ class UserPolicy
      * Función específica para cambiar rol a un usuario.
      * */
     public function changeRole(User $authUser, User $user): bool{
+        //Un Administrador no puede cambiar su propio rol.
+        if($authUser->id === $user->id){
+            return false;
+        }
         return $authUser->hasRole('Administrador');
     }
 }

@@ -26,8 +26,14 @@ class UserSeeder extends Seeder
 
         //Creación de usuarios fijos.
         $admin = User::create([
-            'nombre' => 'Admin',
-            "email" => 'admin@admin.com',
+        'nombre' => 'Admin',
+        "email" => 'admin@admin.com',
+        "password" => Hash::make('123456'),
+        'email_verified_at' => now(),
+    ])->assignRole('Administrador');
+        $admon = User::create([
+            'nombre' => 'Admon',
+            "email" => 'etc-apps@proton.me',
             "password" => Hash::make('123456'),
             'email_verified_at' => now(),
         ])->assignRole('Administrador');
@@ -116,6 +122,12 @@ class UserSeeder extends Seeder
                 'nombre' => 'Lavabo madera con flores',
                 'descripcion' => 'Lavabo rústico con acabados florales incrustados en la madera.',
                 'imagen' => 'lavaboColor.jpeg',
+                'user' => $creador
+            ],
+            [
+                'nombre' => 'Rinconera tronco',
+                'descripcion' => 'Sofa rinconera tallado en el tronco de un arbol.',
+                'imagen' => 'rinconTronco.jpeg',
                 'user' => $creador
             ],
             [

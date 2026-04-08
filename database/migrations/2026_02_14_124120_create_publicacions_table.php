@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('titulo')->nullable();
             $table->text('contenido')->nullable();//Ira el contenido generado por IA.
             $table->enum('estado',['borrador', 'pendiente', 'publicado', 'error'])->default('borrador');
-            $table->json('hashtags')->nullable();
+            $table->string('hashtags')->nullable();
             $table->timestamps();
         });
     }

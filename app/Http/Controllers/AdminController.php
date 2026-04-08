@@ -13,10 +13,14 @@ class AdminController extends Controller
         // Comprueba viewAny de UserPolicy automáticamente
         $this->authorize('viewAny', User::class);
 
-        return User::select('id', 'name', 'email', 'email_verified_at', 'created_at')
-            ->with('roles')
+        $users = User::select('id', 'nombre', 'email', 'email_verified_at', 'created_at')
+            ->with('roles:id,name')
             ->orderBy('created_at', 'desc')
             ->get();
+        return response()->json([
+            'error' => false,
+            'data'  => $users
+        ]);
     }
 
     public function cambiarRol(Request $request, User $user)
@@ -24,7 +28,13 @@ class AdminController extends Controller
         // Comprueba changeRole de UserPolicy automáticamente
         $this->authorize('changeRole', $user);
 
-        $user->roles()->update(['nombre' => $request->rol]);
-        return response()->json(['message' => 'Rol actualizado']);
+        // Spatie tiene syncRoles para cambiar el rol de un usuario.
+        $user->syncRoles([$request->rol]);
+
+        return response()->json([
+            'error'   => false,
+            'message' => 'Rol actualizado correctamente',
+            'data'    => $user->load('roles:id,name')
+        ]);
     }
 }

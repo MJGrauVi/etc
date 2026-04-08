@@ -73,30 +73,36 @@ class MediaController extends Controller
     {
         $request->validate([
             'pieza_id' => 'required|exists:piezas,id',
-            'tipo' => 'required|in:image,video',
-            'path'=> 'required|string',
-            'order' => 'nullable|integer',
+            'imagen'   => 'required|file|image|max:5120', // max 5MB
             'es_portada' => 'nullable|boolean',
         ]);
 
         $pieza = Pieza::findOrFail($request->pieza_id);
 
-        //Comprobamos que la pieza pertenece al usuario autenticado.
-        if($pieza->user_id !== auth()->id()){
+        // Comprobamos que la pieza pertenece al usuario autenticado.
+        if ($pieza->user_id !== auth()->id()) {
             return response()->json([
-                'mensaje' => 'No dispone de autorización para guardar este elemento en su BBDD.'
-            ],403);
+                'message' => 'No dispone de autorización para modificar esta pieza.'
+            ], 403);
         }
 
-        //Creamos el registro en la BBDD.
+        $file = $request->file('imagen');
+
+        // Guardamos el archivo en storage/app/public/imagenes
+        $path = $file->store('imagenes', 'public');
+
+        // Creamos el registro en la tabla medias
         $media = $pieza->medias()->create([
-            'tipo'=> $request->tipo,
-            'path'=> $request->path,
-            'order'=> $request->order ?? 0,
-            'es_portada'=> $request->es_portada ?? false
+            'nombre_original' => $file->getClientOriginalName(),
+            'path'            => $path,
+            'tipo'            => 'imagen',
+            'es_portada'      => $request->boolean('es_portada', false),
         ]);
-        //Devolvemos el JSON al frontend.
-        return response()->json($media,201);
+
+        return response()->json([
+            'error' => false,
+            'data'  => $media
+        ], 201);
     }
 
     /**
@@ -118,9 +124,26 @@ class MediaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMediaRequest $request, Media $media)
+    public function update(Request $request, Media $media)
     {
-        //
+        // Comprobamos que la pieza pertenece al usuario autenticado.
+        if ($media->pieza->user_id !== auth()->id()) {
+            return response()->json([
+                'message' => 'No dispone de autorización.'
+            ], 403);
+        }
+
+        // Si marcamos esta como portada, quitamos la portada anterior
+        if ($request->boolean('es_portada')) {
+            $media->pieza->medias()->update(['es_portada' => false]);
+        }
+
+        $media->update($request->only('es_portada'));
+
+        return response()->json([
+            'error' => false,
+            'data'  => $media
+        ], 200);
     }
 
     /**
@@ -128,6 +151,7 @@ class MediaController extends Controller
      */
     public function destroy(Media $media)
     {
+        $media->load('pieza'); // Ver que la pieza está cargada
         $this->authorize('delete', $media);
 
         Storage::disk('public')->delete($media->path);

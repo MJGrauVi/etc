@@ -29,7 +29,7 @@ class Publicacion extends Model
         'user_id'
         ];
 
-    public function piezas():BelongsTo{
+    public function pieza():BelongsTo{
         return $this->belongsTo(Pieza::class, 'pieza_id');
     }
     public function medias():HasManyThrough{
@@ -43,7 +43,7 @@ class Publicacion extends Model
         );
     }
     protected $casts = [
-        'hashtags' => 'array',
+      /*  'hashtags' => 'array',*/
     ];
     public function reds():BelongsToMany{
         return $this->belongsToMany(Red::class, 'publicacion_red')->withPivot('fecha_vencimiento')->withTimestamps();

@@ -20,7 +20,7 @@ class Media extends Model
         'path',
         'es_portada'];
 
-  public function piezas():BelongsTo{
+  public function pieza():BelongsTo{
       return $this->belongsTo(Pieza::class);
 }
 protected static function booted(){
