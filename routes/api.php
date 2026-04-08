@@ -82,6 +82,18 @@ Route::middleware('auth:sanctum', 'verified')->group(function () {
     Route::delete('/user/{user}', [UserController::class, 'destroy']);//ok admin y authUser/token.
     Route::post('/user/logout', [UserController::class, 'logout']);//ok con token.
 
+    //Ruta para sesion.
+    Route::get('/me', function (Request $request) {
+        $user = $request->user()->load('roles');
+        return response()->json([
+            'error' => false,
+            'data'  => [
+                ...$user->toArray(),
+                'rol' => $user->roles->pluck('name')->first()
+            ]
+        ]);
+    });
+
     //Rutas REST para Pieza.
 
     Route::get('/piezas', [PiezaController::class, 'index']);//Administrador ve todas, usuario las suyas.
@@ -144,5 +156,5 @@ Route::middleware('auth:sanctum', 'verified')->group(function () {
     //Rutas para el panel de administración.
 
     Route::get('/admin/usuarios', [AdminController::class, 'index']);
-    Route::put('/admin/usuarios/{id}/rol', [AdminController::class, 'cambiarRol']);
+    Route::put('/admin/usuarios/{user}/rol', [AdminController::class, 'cambiarRol']);
 });

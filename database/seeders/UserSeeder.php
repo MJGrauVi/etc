@@ -14,88 +14,90 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        //Usuarios aleatorios para rellenar la BD.
+        // Usuarios aleatorios para rellenar la BD
         $users = User::factory(5)->create()->each(function ($user) {
             $user->assignRole('Usuario');
         });
 
-        // Crea 20 piezas asignadas a usuarios aleatorios(sin imagen).
+        // Crea 10 piezas asignadas a usuarios aleatorios
         Pieza::factory(10)->create([
             'user_id' => $users->random()->id
         ]);
 
-        //Creación de usuarios fijos.
-        $admin = User::create([
-        'nombre' => 'Admin',
-        "email" => 'admin@admin.com',
-        "password" => Hash::make('123456'),
-        'email_verified_at' => now(),
-    ])->assignRole('Administrador');
+        // ── Administradores ──────────────────────────────────────────
         $admon = User::create([
-            'nombre' => 'Admon',
-            "email" => 'etc-apps@proton.me',
-            "password" => Hash::make('123456'),
+            'nombre'            => 'Admon',
+            'email'             => 'admon@admon.com',
+            'password'          => Hash::make('123456'),
             'email_verified_at' => now(),
         ])->assignRole('Administrador');
+
+        $admin = User::create([
+            'nombre'            => 'Admin-Etc',
+            'email'             => 'etc-apps@proton.me',
+            'password'          => Hash::make('123456'),
+            'email_verified_at' => now(),
+        ])->assignRole('Administrador');
+
         $logoEtc = 'seeders/images/logos/logoEtc.svg';
 
         if (File::exists(database_path($logoEtc))) {
             $pathFinal = 'logos/logo_etc.svg';
             Storage::disk('public')->put($pathFinal, File::get(database_path($logoEtc)));
 
-            $admin->perfil()->updateOrCreate([
-                'logo' => $pathFinal,
-                'web' => 'http://www.etc.com',
-                'redes_sociales' => [
-                    'facebook' => 'https://facebook.com/etcApps'
-                ],
-            ]);
+            // ✅ CAMBIO 1: updateOrCreate con condición de búsqueda separada
+            $admin->perfil()->updateOrCreate(
+                ['user_id' => $admin->id],  // condición de búsqueda
+                [                           // datos a guardar
+                    'logo' => $pathFinal,
+                    'web'  => 'http://www.etc-apps.com',
+                    'redes_sociales' => [
+                        'facebook' => 'https://facebook.com/etcApps'
+                    ],
+                ]
+            );
         }
 
+        // ── Usuarios fijos ───────────────────────────────────────────
         $userNormal = User::create([
-            'nombre' => 'Usuario',
-            'email' => 'usuario@usuario.com',
-            "password" => Hash::make('123456'),
+            'nombre'            => 'Usuario',
+            'email'             => 'usuario@usuario.com',
+            'password'          => Hash::make('123456'),
             'email_verified_at' => now(),
         ])->assignRole('Usuario');
 
         $invitado = User::create([
-            'nombre' => 'Invitado',
-            "email" => 'invitado@invitado.com',
-            "password" => Hash::make('123456'),
+            'nombre'            => 'Invitado',
+            'email'             => 'invitado@invitado.com',
+            'password'          => Hash::make('123456'),
             'email_verified_at' => now(),
-        ])->assignRole('Invitado');
+        ])->assignRole('Invitado'); // ⚠️ Este rol debe existir en RoleSeeder
 
         $creador = User::create([
-            'nombre' => 'Creador',
-            "email" => 'creador@creador.com',
-            "password" => Hash::make('123456'),
+            'nombre'            => 'Creador',
+            'email'             => 'creador@creador.com',
+            'password'          => Hash::make('123456'),
             'email_verified_at' => now(),
         ])->assignRole('Usuario');
 
-
-        /*****************Usuarios con perfil y logo******************************/
+        // ── Titufas ──────────────────────────────────────────────────
+        // ✅ CAMBIO 2: password hasheada con Hash::make
         $userTitufa = User::create([
-            'nombre'=>'Titufas',
-            'email' => 'titufas@gmail.com',
+            'nombre'            => 'Titufas',
+            'email'             => 'titufas@gmail.com',
             'email_verified_at' => now(),
-            'password' => '123456'])->assignRole('Usuario');
+            'password'          => Hash::make('123456'),
+        ])->assignRole('Usuario');
 
-        // Ruta en la carpeta de seeders (viaja con el código).
         $fotoLogo = 'seeders/images/logos/logoTitufa11.png';
 
         if (File::exists(database_path($fotoLogo))) {
             $pathDestino = 'logos/logo_titufa_seed.png';
             Storage::disk('public')->put($pathDestino, File::get(database_path($fotoLogo)));
 
-            // Actualizamos el perfil que creó el Observer.
-            // SEPARAMOS EL CONTENIDO:
-// El primer array [] es para BUSCAR (solo el ID).
-// El segundo array [] es para LOS DATOS que quieres insertar o actualizar.
-
             $userTitufa->perfil()->updateOrCreate(
-                ['user_id' => $userTitufa->id], // BUSCAMOS SOLO POR EL ID (Esto no da error)
-                [                               // AQUÍ VAN TODOS LOS DATOS A GUARDAR
+                ['user_id' => $userTitufa->id],
+                [
                     'tipo_documento' => 'nif',
                     'documento'      => '12345678T',
                     'movil'          => '606999555',
@@ -108,89 +110,88 @@ class UserSeeder extends Seeder
                 ]
             );
         }
-        /**********************************************************************************/
 
-        //Definir piezas reales asignadas a imagenes físicas.
+        // ── Piezas con imágenes reales ───────────────────────────────
         $todasPiezas = [
             [
-                'nombre' => 'Escalera Artesanal de Color',
+                'nombre'      => 'Escalera Artesanal de Color',
                 'descripcion' => 'Una pieza única pintada a mano y tronco lateral.',
-                'imagen' => 'escaleraColor.jpeg',
-                'user' => $creador // Asignada al Creador
+                'imagen'      => 'escaleraColor.jpeg',
+                'user'        => $creador
             ],
             [
-                'nombre' => 'Lavabo madera con flores',
+                'nombre'      => 'Lavabo madera con flores',
                 'descripcion' => 'Lavabo rústico con acabados florales incrustados en la madera.',
-                'imagen' => 'lavaboColor.jpeg',
-                'user' => $creador
+                'imagen'      => 'lavaboColor.jpeg',
+                'user'        => $creador
             ],
             [
-                'nombre' => 'Rinconera tronco',
+                'nombre'      => 'Rinconera tronco',
                 'descripcion' => 'Sofa rinconera tallado en el tronco de un arbol.',
-                'imagen' => 'rinconTronco.jpeg',
-                'user' => $creador
+                'imagen'      => 'rinconTronco.jpeg',
+                'user'        => $creador
             ],
             [
-                'nombre' => 'Mesa motivos Mariposa',
+                'nombre'      => 'Mesa motivos Mariposa',
                 'descripcion' => 'Mesa rustica con sillas a juego, motivos coloridos y diseño mariposas.',
-                'imagen' => 'mesaMariposa.jpeg',
-                'user' => $userNormal // Asignada al Usuario
+                'imagen'      => 'mesaMariposa.jpeg',
+                'user'        => $userNormal
             ],
             [
-                'nombre' => 'Ducha en tronco arbol',
+                'nombre'      => 'Ducha en tronco arbol',
                 'descripcion' => 'Creación de ducha tallada en tronco centenario acabada con mampara curva transparente.',
-                'imagen' => 'duchaMadera.jpeg',
-                'user' => $userNormal
+                'imagen'      => 'duchaMadera.jpeg',
+                'user'        => $userNormal
             ],
             [
-                'nombre' => 'Lámpara de Suelo funcional',
+                'nombre'      => 'Lámpara de Suelo funcional',
                 'descripcion' => 'Iluminación cálida para salones con mesita y estante.',
-                'imagen' => 'lamparaSuelo.jpeg',
-                'user' => $invitado
+                'imagen'      => 'lamparaSuelo.jpeg',
+                'user'        => $invitado
             ],
             [
-                'nombre' => 'Peldaños desiguales en madera.',
+                'nombre'      => 'Peldaños desiguales en madera.',
                 'descripcion' => 'Peldaños de escalera de madera con incrustaciones en nogal acabado exposi brillo.',
-                'imagen' => 'peldanosEscalera.jpeg',
-                'user' => $userNormal
+                'imagen'      => 'peldanosEscalera.jpeg',
+                'user'        => $userNormal
             ],
             [
-                'nombre' => 'Fofucha Abanderada Infantil',
+                'nombre'      => 'Fofucha Abanderada Infantil',
                 'descripcion' => 'Focucha realizada en gomaeva y otros abalorios imitando la imagen facilitada.',
-                'imagen' => 'abanderadaInfantil.jpeg',
-                'user' => $userTitufa
+                'imagen'      => 'abanderadaInfantil.jpeg',
+                'user'        => $userTitufa
+            ],
+            [
+                'nombre'      => 'Focucha Gitanilla',
+                'descripcion' => 'Focucha realizada en gomaeva de la comparsa contrabandista.',
+                'imagen'      => 'gitanilla1.jpeg',
+                'user'        => $userTitufa
             ]
         ];
-        //Asignar las piezas a sus medias automaticamente.
-        foreach ($todasPiezas as $pieza) {
 
-            // 1. Crear la pieza
+        foreach ($todasPiezas as $pieza) {
             $nuevaPieza = Pieza::create([
-                'nombre' => $pieza['nombre'],
+                'nombre'      => $pieza['nombre'],
                 'descripcion' => $pieza['descripcion'],
-                'user_id' => $pieza['user']->id,
+                'user_id'     => $pieza['user']->id,
             ]);
 
-            // 2. Copiar la imagen desde database/seeders/images/ a storage/app/public/imagenes/
-            $origen = database_path('seeders/images/fotos/' . $pieza['imagen']);
+            $origen  = database_path('seeders/images/fotos/' . $pieza['imagen']);
             $destino = 'imagenes/' . $pieza['imagen'];
 
             if (File::exists($origen)) {
                 Storage::disk('public')->put($destino, File::get($origen));
             } else {
-                // Para depuración si alguna imagen falta
                 dump("Imagen no encontrada en: " . $origen);
             }
 
-            // 3. Crear la media asociada
             Media::create([
-                'pieza_id' => $nuevaPieza->id,
+                'pieza_id'       => $nuevaPieza->id,
                 'nombre_original' => $pieza['imagen'],
-                'tipo' => 'imagen',
-                'path' => $destino, // ESTE path es el que GeminiService usa
-                'es_portada' => true,
+                'tipo'           => 'imagen',
+                'path'           => $destino,
+                'es_portada'     => true,
             ]);
         }
-
     }
 }
