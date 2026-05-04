@@ -35,11 +35,21 @@ Route::get('/test-gemini', function () {
 
 //Pruebas en postman incluir /api/.....
 Route::post('/register', [UserController::class, 'store']);//ok
+// Añade esto cerca de Route::post('/register', ...)
+Route::get('/check-email', function (Request $request) {
+    if (!$request->has('email')) {
+        return response()->json(['exists' => false]);
+    }
+    $exists = User::where('email', $request->query('email'))->exists();
+    return response()->json(['exists' => $exists]);
+});
+
+
 //Para login: http://localhost/api/user/login (añadir Bearer Token y Content-Type)
 Route::post('/login', [UserController::class, 'verify']);//ok
 
 /********************************************************************************/
-//Añadimos verificacion de emai.
+//Añadimos verificacion de email.
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\URL;
 
@@ -71,6 +81,7 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) 
 
     return response()->json(['message' => 'Email verificado correctamente.']);
 })->middleware('signed')->name('verification.verify');
+
 /************* Dentro del grupo las rutas que estan protegidas con middleware.*******************/
 //Cualquier peticion necesita token Bearer.
 Route::middleware('auth:sanctum', 'verified')->group(function () {
@@ -154,7 +165,6 @@ Route::middleware('auth:sanctum', 'verified')->group(function () {
     Route::post('/notificaciones/read-all', [NotificacionController::class, 'markAllAsRead']);
 
     //Rutas para el panel de administración.
-
     Route::get('/admin/usuarios', [AdminController::class, 'index']);
     Route::put('/admin/usuarios/{user}/rol', [AdminController::class, 'cambiarRol']);
 });

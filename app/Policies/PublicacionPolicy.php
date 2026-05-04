@@ -13,7 +13,7 @@ class PublicacionPolicy
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user) {
-        // Admin puede ver todas
+        // Admin puede ver todas.
         if ($user->hasRole('Administrador')) {
             return true;
         }
@@ -26,23 +26,38 @@ class PublicacionPolicy
      */
     public function view(User $user, Publicacion $publicacion): bool
     {
+        $publicacion->loadMissing('piezas');
         return $user->hasRole('Administrador') || $publicacion->pieza->user_id === $user->id;
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user, Pieza $pieza)
+  /*  public function create(User $user, Pieza $pieza)
     {
         return $user->hasRole('Administrador')
             || $pieza->user_id === $user->id;
+    }*/
+
+    /**
+     * Determine whether the user can create models.
+     * IMPORTANTE: Laravel NO pasa la Pieza aquí.
+     */
+    public function create(User $user): bool
+    {
+        return $user->hasRole('Administrador')
+            || $user->hasRole('Usuario');
     }
+
+
 
     /**
      * Determine whether the user can update the model.
      */
     public function update(User $user, Publicacion $publicacion)
     {
+
+        $publicacion->loadMissing('piezas');
         return $user->hasRole('Administrador')
             || $publicacion->pieza->user_id === $user->id;
     }

@@ -26,8 +26,8 @@ class UpdatePiezaRequest extends FormRequest
         return [
             'nombre' => 'sometimes|string|max:255',
             'descripcion' => 'sometimes|string',
-            'categoria' => 'sometimes|string|max:100',
-            'precio' => 'sometimes|numeric|min:0',
+            'categoria' => 'sometimes|nullable|string|max:100',
+            'precio' => 'sometimes|nullable|numeric|min:0',
         ];
     }
 }

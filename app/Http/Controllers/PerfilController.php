@@ -23,13 +23,13 @@ class PerfilController extends Controller
         //Si por algún motivo no existiera lo creamos.
         if(!$perfil){
             $perfil = Auth()->user()->perfil()->create([
-                'tipo_documento',
-                'documento',
-                'movil',
-                'logo',
-                'descripcion',
-                'web',
-                'redes_sociales'
+                'tipo_documento' => null,
+                'documento'      => null,
+                'movil'          => null,
+                'logo'           => null,
+                'descripcion'    => null,
+                'web'            => null,
+                'redes_sociales' => null,
             ]);
         }
 

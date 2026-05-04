@@ -30,7 +30,7 @@ class PublicacionController extends Controller
         $this->authorize('viewAny', Publicacion::class);
 
         // Ajuste: Cargamos piezas.medias porque media no cuelga de publicacion.
-        $query = Publicacion::with(['pieza.medias', 'reds']);
+        $query = Publicacion::with(['piezas.medias', 'reds']);
 
         // Si es admin puede ver todas.
         if (!$user->hasRole('Administrador')) {
@@ -125,7 +125,7 @@ class PublicacionController extends Controller
 
         return response()->json([
             'message' => 'Publicación creada correctamente',
-            'data' => $publicacion->load('pieza.medias', 'reds')
+            'data' => $publicacion->load('piezas.medias', 'reds')
         ], 201);
     }
     /**
@@ -135,7 +135,7 @@ class PublicacionController extends Controller
     {
         $this->authorize('view', $publicacion);
 
-        $publicacion->load('pieza.medias','reds');
+        $publicacion->load('piezas.medias','reds');
 
         return response()->json($publicacion);
     }
@@ -146,23 +146,32 @@ class PublicacionController extends Controller
      */
     public function update(UpdatePublicacionRequest $request, Publicacion $publicacion)
     {
-        $this->authorize('update', $publicacion);
-        $data = $request->validated();
+        // Carga la relación antes de la policy.
+        $publicacion->loadMissing('piezas');
 
+        //LLama a PublicaciónPolicy-update.
+        $this->authorize('update', $publicacion);
+        //Validación.
+        $data = $request->validated();
+        //Actualiza compos.
         $publicacion->update([
             'titulo'    => $data['titulo'] ?? $publicacion->titulo,
             'contenido' => $data['contenido'] ?? $publicacion->contenido,
             'estado'    => $data['estado'] ?? $publicacion->estado,
             'hashtags'  => $data['hashtags'] ?? $publicacion->hashtags,
         ]);
-
+        //Actualizar relación con redes sociales.
         if (isset($data['reds'])) {
             $publicacion->reds()->sync($data['reds']);
         }
+
+        //Cargar relaciones necesarias para el frontend.
+        $publicacion->load('piezas.medias', 'reds');
+
         //Cargamos 'pieza.media' para que React reciba la url de la imagen.
         return response()->json([
             'message' => 'Publicación actualizada',
-            'data' => $publicacion->load('pieza.medias','reds')
+            'data' => $publicacion
         ]);
     }
     /**
@@ -250,10 +259,20 @@ class PublicacionController extends Controller
                 str_starts_with($contenido, "DETALLE_GOOGLE") ||
                 str_starts_with($contenido, "EXCEPCION_CONEXION")
             ) {
+                // 👇 Detecta si es error de cuota específicamente
+                $esCuota = str_contains($contenido, '429') ||
+                    str_contains($contenido, 'RESOURCE_EXHAUSTED') ||
+                    str_contains($contenido, 'quota');
+
+                if ($esCuota) {
+                    return response()->json([
+                        'success' => false,
+                        'error'   => 'Has alcanzado el límite diario de peticiones de IA. Inténtalo mañana o actualiza el plan en Google AI Studio.',
+                    ], 429); // 👈 código 429 específico para cuota
+                }
                 return response()->json([
                     'success'    => false,
                     'error_ia'   => $contenido,
-                    'debug_path' => $imagePath
                 ], 500);
             }
 
@@ -299,7 +318,7 @@ class PublicacionController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Publicación generada y guardada como borrador',
-                'data'    => $publicacion->load('pieza.medias') // ← singular
+                'data'    => $publicacion->load('piezas.medias') // ← singular
             ], 201);
 
         } catch (\Exception $e) {

@@ -29,7 +29,7 @@ class Publicacion extends Model
         'user_id'
         ];
 
-    public function pieza():BelongsTo{
+    public function piezas():BelongsTo{
         return $this->belongsTo(Pieza::class, 'pieza_id');
     }
     public function medias():HasManyThrough{
@@ -61,7 +61,7 @@ class Publicacion extends Model
 
         ]);
     }
-    public function users()
+    public function user()
     {
         // Una publicación PERTENECE a un usuario
         return $this->belongsTo(User::class);

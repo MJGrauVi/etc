@@ -20,14 +20,11 @@ class UserController extends Controller
 
     public function index()
     {
+        //Comprueba los permisos usando policy.
         $this->authorize('viewAny', User::class);
 
         $users = User::with('perfil','roles:id,name')->get();
 
-     /*   $users->each(function ($user) {
-            $user->rol = $user->roles->pluck('name')->first();
-            unset($user->roles);
-        });*/
         return response()->json([
             "error" => false,
             "data" => $users
@@ -203,13 +200,37 @@ class UserController extends Controller
     }
 
     public function logout(Request $request) {
-        $token = $request->user()->currentAccessToken();
-        if ($token) { $token->delete();
-        } return response([
-            "error" => false,
-            "message" => "Cierre de sesión correcto.",
-            "code" => 200
-        ], 200);
+    $user = $request->user();
+
+    if (!$user) {
+        return response()->json([
+            "error" => true,
+            "message" => "Usuario no autenticado."
+        ], 401);
     }
+
+    $request->user()->currentAccessToken()->delete();
+
+    return response()->json([
+        "error" => false,
+        "message" => "Cierre de sesión correcto."
+    ]);
+}
+    /*public function logout(Request $request) {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                "error" => true,
+                "message" => "Usuario no autenticado."
+            ], 401);
+        }
+        $user->tokens()->delete();
+
+        return response()->json([
+            "error" => false,
+            "message" => "Cierre de sesión correcto."
+        ]);
+    }*/
 
 }
