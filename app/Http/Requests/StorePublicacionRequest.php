@@ -26,10 +26,10 @@ class StorePublicacionRequest extends FormRequest
             'titulo' => 'nullable|string|max:255',
             'contenido' => 'nullable|string|max:10000',
             'redes' => 'nullable|array',
-            'redes.*' => 'exists:reds|id',
+            'redes.*' => 'exists:reds,id',
             //Si el usuario sube la foro en ese instante.
             'imagen' => 'nullable|array',
-            'estado' => 'nullable|string|in:borrador, publicado',
+            'estado' => 'nullable|string|in:borrador,pendiente,publicado,error',
         ];
 
     }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Publicacion extends Model
 {
@@ -29,7 +30,7 @@ class Publicacion extends Model
         'user_id'
         ];
 
-    public function piezas():BelongsTo{
+    public function pieza():BelongsTo{
         return $this->belongsTo(Pieza::class, 'pieza_id');
     }
     public function medias():HasManyThrough{

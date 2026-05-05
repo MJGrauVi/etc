@@ -35,8 +35,7 @@ class GeminiService
             $url = "{$this->baseUrl}/models/{$this->model}:generateContent";
 
             // 3. Petición HTTP usando Laravel y los Headers del CURL
-            $response = Http::withoutVerifying()
-                ->timeout(30)
+            $response = Http::timeout(30)
                 ->withHeaders([
                     // ESTA ES LA CLAVE: El Header del curl que funciona.
                     'x-goog-api-key' => $apiKey,

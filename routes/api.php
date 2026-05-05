@@ -11,27 +11,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MediaController;
-use App\Services\GeminiService;
-/************************************************************/
-// routes/web.php
-Route::get('/test-key', function () {
-    return "La clave configurada es: " . config('services.gemini.key');
-});
-
-/*************************************************************/
-//Route::get('/test', fn() => 'ESTE ES MI LARAVEL');
-
-Route::get('/test-gemini', function () {
-    $service = new GeminiService();
-
-    $imagePath = storage_path("app/public/imagenes/peldanosEscalera.jpeg");
-
-    $prompt = "Describe esta imagen y genera título y hashtags.";
-
-    $resultado = $service->generateCaption($imagePath, $prompt);
-
-    dd($resultado);
-});
+use Illuminate\Support\Facades\URL;
 
 //Pruebas en postman incluir /api/.....
 Route::post('/register', [UserController::class, 'store']);//ok
@@ -50,8 +30,8 @@ Route::post('/login', [UserController::class, 'verify']);//ok
 
 /********************************************************************************/
 //Añadimos verificacion de email.
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Support\Facades\URL;
+
+
 
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
 
@@ -124,6 +104,7 @@ Route::middleware('auth:sanctum', 'verified')->group(function () {
     Route::post('/publicacion/generar', [PublicacionController::class, 'generarContenido']);
     //Rutas para las publicaciones.
     Route::get('/publicaciones', [PublicacionController::class, 'index']);
+    Route::get('/publicaciones/alertas-vencimiento', [PublicacionController::class, 'alertaVencimiento']);
     Route::post('/publicacion', [PublicacionController::class, 'store']);
     Route::get('/publicacion/{publicacion}', [PublicacionController::class, 'show']);
     Route::put('/publicacion/{publicacion}', [PublicacionController::class, 'update']);

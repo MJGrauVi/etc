@@ -12,7 +12,7 @@ class PublicacionPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user) {
+    public function viewAny(User $user):bool {
         // Admin puede ver todas.
         if ($user->hasRole('Administrador')) {
             return true;
@@ -26,18 +26,10 @@ class PublicacionPolicy
      */
     public function view(User $user, Publicacion $publicacion): bool
     {
-        $publicacion->loadMissing('piezas');
+        $publicacion->loadMissing('pieza');
         return $user->hasRole('Administrador') || $publicacion->pieza->user_id === $user->id;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
-  /*  public function create(User $user, Pieza $pieza)
-    {
-        return $user->hasRole('Administrador')
-            || $pieza->user_id === $user->id;
-    }*/
 
     /**
      * Determine whether the user can create models.
@@ -54,10 +46,10 @@ class PublicacionPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Publicacion $publicacion)
+    public function update(User $user, Publicacion $publicacion):bool
     {
 
-        $publicacion->loadMissing('piezas');
+        $publicacion->loadMissing('pieza');
         return $user->hasRole('Administrador')
             || $publicacion->pieza->user_id === $user->id;
     }
@@ -65,7 +57,7 @@ class PublicacionPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Publicacion $publicacion)
+    public function delete(User $user, Publicacion $publicacion):bool
     {
         // El Administrador siempre tiene permiso (Poder absoluto).
         if ($user->hasRole('Administrador')) {
@@ -75,7 +67,10 @@ class PublicacionPolicy
         // El autor de la publicación puede borrar sus publicaciones.
         // Comparamos el ID del usuario logueado ($user->id) con el
         // del creador de la publicación ($publicacion->user_id)
-        return $user->id === $publicacion->user_id;
+
+        $publicacion->loadMissing('pieza');
+
+        return $publicacion->pieza?->user_id === $user->id;
     }
 
     /**

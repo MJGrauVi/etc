@@ -29,8 +29,8 @@ class PublicacionController extends Controller
         // Autorizar acceso general
         $this->authorize('viewAny', Publicacion::class);
 
-        // Ajuste: Cargamos piezas.medias porque media no cuelga de publicacion.
-        $query = Publicacion::with(['piezas.medias', 'reds']);
+        // Ajuste: Cargamos pieza.medias porque media no cuelga de publicacion.
+        $query = Publicacion::with(['pieza.medias', 'reds']);
 
         // Si es admin puede ver todas.
         if (!$user->hasRole('Administrador')) {
@@ -125,7 +125,7 @@ class PublicacionController extends Controller
 
         return response()->json([
             'message' => 'Publicación creada correctamente',
-            'data' => $publicacion->load('piezas.medias', 'reds')
+            'data' => $publicacion->load('pieza.medias', 'reds')
         ], 201);
     }
     /**
@@ -135,7 +135,7 @@ class PublicacionController extends Controller
     {
         $this->authorize('view', $publicacion);
 
-        $publicacion->load('piezas.medias','reds');
+        $publicacion->load('pieza.medias','reds');
 
         return response()->json($publicacion);
     }
@@ -147,7 +147,7 @@ class PublicacionController extends Controller
     public function update(UpdatePublicacionRequest $request, Publicacion $publicacion)
     {
         // Carga la relación antes de la policy.
-        $publicacion->loadMissing('piezas');
+        $publicacion->loadMissing('pieza');
 
         //LLama a PublicaciónPolicy-update.
         $this->authorize('update', $publicacion);
@@ -166,7 +166,7 @@ class PublicacionController extends Controller
         }
 
         //Cargar relaciones necesarias para el frontend.
-        $publicacion->load('piezas.medias', 'reds');
+        $publicacion->load('pieza.medias', 'reds');
 
         //Cargamos 'pieza.media' para que React reciba la url de la imagen.
         return response()->json([
@@ -189,16 +189,30 @@ class PublicacionController extends Controller
     }
 
     Public function alertaVencimiento(){
-        //Buscamos en la tabla pivor las relaciones que vencen en 7 días.
-        $alertas = auth()->user()->piezas()-with(['publicaciones.reds', function($query){
-            $query->wherePivot('fecha_vencimiento', '<=', now()->addDays(7));
+        $desde = now()->startOfDay();
+        $hasta = now()->addDays(7)->endOfDay();
 
-    }])->get()->pluck('publicacions')-flatten()->filter(function($p){
-        return $p->reds->isNotEmpty();
-            });
+        // Buscamos publicaciones del usuario con redes que vencen en los próximos 7 días.
+        // fecha_vencimiento vive en la tabla pivote publicacion_red, por eso usamos wherePivot.
+        $alertas = Publicacion::with([
+            'pieza',
+            'reds' => function ($query) use ($desde, $hasta) {
+                $query->wherePivot('fecha_vencimiento', '>=', $desde)
+                    ->wherePivot('fecha_vencimiento', '<=', $hasta);
+            }
+        ])
+            ->whereHas('pieza', function ($query) {
+                $query->where('user_id', auth()->id());
+            })
+            ->whereHas('reds', function ($query) use ($desde, $hasta) {
+                $query->wherePivot('fecha_vencimiento', '>=', $desde)
+                    ->wherePivot('fecha_vencimiento', '<=', $hasta);
+            })
+            ->get();
+
         return response()->json([
             "error"=>false,
-            "mensajes"=>"Tiene " . $alertas->count() . "publicaciones próximas a vencer.",
+            "mensaje"=>"Tiene " . $alertas->count() . " publicaciones próximas a vencer.",
             "data"=>$alertas
         ]);
     }
@@ -318,7 +332,7 @@ class PublicacionController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Publicación generada y guardada como borrador',
-                'data'    => $publicacion->load('piezas.medias') // ← singular
+                'data'    => $publicacion->load('pieza.medias') // ← singular
             ], 201);
 
         } catch (\Exception $e) {

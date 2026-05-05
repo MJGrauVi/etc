@@ -36,7 +36,7 @@ class PublicacionVencida extends Notification
     public function toArray($notifiable): array{
         return [
             'publicacion_id'=> $this->publicacion->id,
-            'titulo_pieza' => $this->publicacion->piezas->nombre ?? 'Pieza no especificada',
+            'titulo_pieza' => $this->publicacion->pieza->nombre ?? 'Pieza no especificada',
             'mensaje' => "La publicación ' {$this->publicacion->titulo} 'ha vencido y requiere revisión.",
             'fecha_vencimiento' => now()->format('d-m-Y'),
             'url' => "/piezas/" . ($this->publicacion->pieza_id ?? '') //Para que el frontend sepe donde ir a clicar.

@@ -11,7 +11,7 @@ class UpdatePublicacionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,12 @@ class UpdatePublicacionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'titulo' => 'sometimes|nullable|string|max:255',
+            'contenido' => 'sometimes|nullable|string|max:10000',
+            'estado' => 'sometimes|string|in:borrador,pendiente,publicado,error',
+            'hashtags' => 'sometimes|nullable|string|max:1000',
+            'reds' => 'sometimes|array',
+            'reds.*' => 'exists:reds,id',
         ];
     }
 }

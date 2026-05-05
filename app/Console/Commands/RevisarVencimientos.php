@@ -35,7 +35,7 @@ class RevisarVencimientos extends Command
 
         foreach ($vencidos as $registro) {
             // 2. Buscamos la publicación y su dueño (User)
-            $publicacion = Publicacion::with('users')->find($registro->publicacion_id);
+            $publicacion = Publicacion::with('user', 'pieza')->find($registro->publicacion_id);
 
             if ($publicacion && $publicacion->user) {
                 // 3. ¡ENVIAMOS LA NOTIFICACIÓN!
