@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\FacebookPublicacionController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PiezaController;
@@ -109,6 +110,7 @@ Route::middleware('auth:sanctum', 'verified')->group(function () {
     Route::get('/publicacion/{publicacion}', [PublicacionController::class, 'show']);
     Route::put('/publicacion/{publicacion}', [PublicacionController::class, 'update']);
     Route::delete('publicacion/{publicacion}', [PublicacionController::class, 'destroy']);
+    Route::post('/publicacion/{publicacion}/facebook', [FacebookPublicacionController::class, 'publish']);
 
     // Redes asociadas a una publicación (N:N)
     Route::post('/publicacion/{publicacion}/reds', [PublicacionRedController::class, 'attach']);

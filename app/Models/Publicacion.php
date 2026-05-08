@@ -47,7 +47,17 @@ class Publicacion extends Model
       /*  'hashtags' => 'array',*/
     ];
     public function reds():BelongsToMany{
-        return $this->belongsToMany(Red::class, 'publicacion_red')->withPivot('fecha_vencimiento')->withTimestamps();
+        return $this->belongsToMany(Red::class, 'publicacion_red')
+            ->withPivot([
+                'fecha_vencimiento',
+                'estado_publicacion',
+                'imagen_publicada_path',
+                'external_photo_id',
+                'external_post_id',
+                'published_at',
+                'error',
+            ])
+            ->withTimestamps();
     }
 
     public function publicar()
