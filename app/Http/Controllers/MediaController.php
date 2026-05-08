@@ -113,6 +113,25 @@ class MediaController extends Controller
         //
     }
 
+    public function archivo(Media $media)
+    {
+        $media->loadMissing('pieza');
+
+        if (!auth()->user()->hasRole('Administrador') && $media->pieza->user_id !== auth()->id()) {
+            return response()->json([
+                'message' => 'No dispone de autorizacion para ver esta imagen.'
+            ], 403);
+        }
+
+        if (!Storage::disk('public')->exists($media->path)) {
+            return response()->json([
+                'message' => 'Imagen no encontrada.'
+            ], 404);
+        }
+
+        return Storage::disk('public')->response($media->path);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */

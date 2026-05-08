@@ -97,6 +97,7 @@ Route::middleware('auth:sanctum', 'verified')->group(function () {
     //Guardar en bbdd las rutas de las imagenes de las piezas.
     Route::get('/medias', [MediaController::class, 'index']);
     Route::post('/media', [MediaController::class, 'store']);
+    Route::get('/media/{media}/archivo', [MediaController::class, 'archivo']);
     Route::get('/media/{pieza}', [MediaController::class, 'show']);
     Route::put('/media/{media}', [MediaController::class, 'update']);
     Route::delete('/media/{media}', [MediaController::class, 'destroy']);
