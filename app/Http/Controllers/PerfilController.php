@@ -92,4 +92,23 @@ class PerfilController extends Controller
         ],200);
     }
 
+    public function logoArchivo()
+    {
+        $perfil = Auth::user()->perfil;
+
+        if (!$perfil || !$perfil->logo) {
+            return response()->json([
+                'message' => 'Logo no encontrado.'
+            ], 404);
+        }
+
+        if (!Storage::disk('public')->exists($perfil->logo)) {
+            return response()->json([
+                'message' => 'Archivo de logo no encontrado.'
+            ], 404);
+        }
+
+        return Storage::disk('public')->response($perfil->logo);
+    }
+
 }

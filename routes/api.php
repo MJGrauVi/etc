@@ -134,6 +134,7 @@ Route::middleware('auth:sanctum', 'verified')->group(function () {
 
     // Subir o actualizar solo el logo (POST porque es un archivo).
     Route::post('/perfil/logo', [PerfilController::class, 'uploadLogo']);
+    Route::get('/perfil/logo/archivo', [PerfilController::class, 'logoArchivo']);
 
     /*Sistema de notificaciones para el vencimiento de las publicaciones.***********************/
     // 1. Obtener todas las notificaciones (leídas y no leídas).
