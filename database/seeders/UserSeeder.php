@@ -26,8 +26,8 @@ class UserSeeder extends Seeder
 
         // ── Administradores ──────────────────────────────────────────
         $admon = User::create([
-            'nombre'            => 'Admon',
-            'email'             => 'admon@admon.com',
+            'nombre'            => 'Admin',
+            'email'             => 'admin@admin.com',
             'password'          => Hash::make('123456'),
             'email_verified_at' => now(),
         ])->assignRole('Administrador');
