@@ -21,6 +21,16 @@ class FacebookPublicacionController extends Controller
         $this->authorize('update', $publicacion);
 
         $message = $request->input('mensaje') ?: $this->buildMessage($publicacion);
+
+        try {
+            $facebook->ensureConfigured();
+        } catch (\Throwable $exception) {
+            return response()->json([
+                'message' => 'Facebook no esta configurado.',
+                'error' => $exception->getMessage(),
+            ], 422);
+        }
+
         $image = $request->file('imagen');
         $fileName = $this->buildFileName($publicacion, $image->extension());
         $imagePath = $image->storeAs('publicaciones/facebook', $fileName, 'public');

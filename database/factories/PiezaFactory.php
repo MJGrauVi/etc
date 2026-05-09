@@ -23,10 +23,27 @@ class PiezaFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'nombre' => $this->faker->name(),
+            'nombre' => $this->faker->randomElement([
+                'Lampara artesanal de madera',
+                'Mesa auxiliar decorada',
+                'Figura personalizada en goma eva',
+                'Cuadro decorativo floral',
+                'Caja de madera pintada a mano',
+                'Centro de mesa artesanal',
+                'Marco decorativo personalizado',
+                'Estanteria rustica',
+                'Macetero decorativo',
+                'Bandeja artesanal',
+            ]),
             'descripcion' => $this->faker->paragraph(3),
             /*'categoria' =>$this->faker->randomElement(['general', 'carpintero', 'escultor', 'herrero']),*/
-            'categoria' => $this->faker->word(),
+            'categoria' => $this->faker->randomElement([
+                'Decoracion',
+                'Madera',
+                'Goma eva',
+                'Hogar',
+                'Personalizados',
+            ]),
             'precio' => $this->faker->randomFloat(2, 10, 100),
             ];
     }

@@ -7,15 +7,20 @@ use RuntimeException;
 
 class FacebookPageService
 {
+    public function ensureConfigured(): void
+    {
+        if (empty(config('services.facebook.page_id')) || empty(config('services.facebook.page_access_token'))) {
+            throw new RuntimeException('Faltan FACEBOOK_PAGE_ID o FACEBOOK_PAGE_ACCESS_TOKEN en el archivo .env.');
+        }
+    }
+
     public function publishPhoto(string $imagePath, string $fileName, string $message): array
     {
         $pageId = config('services.facebook.page_id');
         $accessToken = config('services.facebook.page_access_token');
         $version = config('services.facebook.graph_version', 'v25.0');
 
-        if (empty($pageId) || empty($accessToken)) {
-            throw new RuntimeException('Faltan FACEBOOK_PAGE_ID o FACEBOOK_PAGE_ACCESS_TOKEN en el archivo .env.');
-        }
+        $this->ensureConfigured();
 
         $version = ltrim($version, '/');
         $url = "https://graph.facebook.com/{$version}/{$pageId}/photos";
