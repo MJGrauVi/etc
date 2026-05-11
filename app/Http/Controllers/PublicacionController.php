@@ -54,7 +54,7 @@ class PublicacionController extends Controller
 
         $tituloFinal = $data['titulo'] ?? null;
         $contenidoFinal = $data['contenido'] ?? null;
-        $hashtagsFinal = '';
+        $hashtagsFinal = $data['hashtags'] ?? '';
 
         // Lógica de Generación con IA.
         if (empty($contenidoFinal)) {

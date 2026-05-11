@@ -25,6 +25,7 @@ class StorePublicacionRequest extends FormRequest
             'pieza_id' => 'required|exists:piezas,id',
             'titulo' => 'nullable|string|max:255',
             'contenido' => 'nullable|string|max:10000',
+            'hashtags' => 'nullable|string|max:1000',
             'redes' => 'nullable|array',
             'redes.*' => 'exists:reds,id',
             //Si el usuario sube la foro en ese instante.
