@@ -8,7 +8,6 @@ use App\Models\Red;
 use App\Services\FacebookPageService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class FacebookPublicacionController extends Controller
 {
@@ -31,11 +30,25 @@ class FacebookPublicacionController extends Controller
             ], 422);
         }
 
-        $image = $request->file('imagen');
-        $fileName = $this->buildFileName($publicacion, $image->extension());
-        $imagePath = $image->storeAs('publicaciones/facebook', $fileName, 'public');
+        $media = $publicacion->pieza->medias->firstWhere('es_portada', true)
+            ?? $publicacion->pieza->medias->first();
+
+        if (!$media) {
+            return response()->json([
+                'message' => 'La pieza no tiene imagen para publicar en Facebook.',
+            ], 422);
+        }
+
+        $imagePath = $media->path;
         $absoluteImagePath = Storage::disk('public')->path($imagePath);
+        $fileName = basename($imagePath);
         $facebookRed = Red::where('nombre', 'Facebook')->first();
+
+        if (!Storage::disk('public')->exists($imagePath)) {
+            return response()->json([
+                'message' => 'La imagen de la pieza no existe en storage.',
+            ], 422);
+        }
 
         try {
             $facebookResponse = $facebook->publishPhoto($absoluteImagePath, $fileName, $message);
@@ -95,13 +108,5 @@ class FacebookPublicacionController extends Controller
         ])
             ->filter()
             ->implode("\n\n");
-    }
-
-    private function buildFileName(Publicacion $publicacion, string $extension): string
-    {
-        $slug = Str::slug($publicacion->titulo ?: 'publicacion');
-        $date = now()->format('YmdHis');
-
-        return "publicacion-{$publicacion->id}-{$slug}-{$date}.{$extension}";
     }
 }

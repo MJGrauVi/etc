@@ -14,7 +14,6 @@ class PublishFacebookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'imagen' => 'required|file|mimes:jpg,jpeg,png,webp|max:8192',
             'mensaje' => 'nullable|string|max:5000',
         ];
     }
