@@ -42,7 +42,7 @@ class PublicacionController extends Controller
     }
 
     /**
-     * Crear publicación (Usa IA si el contenido está vacío).
+     * Crear una publicacion manual.
      */
     public function store(StorePublicacionRequest $request)
     {
@@ -55,46 +55,6 @@ class PublicacionController extends Controller
         $tituloFinal = $data['titulo'] ?? null;
         $contenidoFinal = $data['contenido'] ?? null;
         $hashtagsFinal = $data['hashtags'] ?? '';
-
-        // Lógica de Generación con IA.
-        if (empty($contenidoFinal)) {
-            $primeraImagen = $pieza->medias->first();
-
-            if ($primeraImagen && file_exists($imagePath = storage_path('app/public/' . $primeraImagen->path))) {
-                try {
-                    $prompt = "Analiza la pieza '{$pieza->nombre}'. Genera EXCLUSIVAMENTE este formato, sin textos extra, sin saludos ni consejos:
-                               Título: [un título corto]
-                               Contenido: [descripción emocional y técnica]
-                               Hashtags: [5 hashtags separados por espacios]";
-
-                    $raw = $this->gemini->generateCaption($imagePath, $prompt);
-
-                    // --- Extracción de datos del Raw de Gemini ---
-                    $lineas = explode("\n", $raw);
-                    $tempContenido = [];
-
-                    foreach ($lineas as $linea) {
-                        $lineaOriginal = trim($linea);
-                        // Limpiamos la línea de símbolos para detectar la etiqueta
-                        $lineaLimpia = str_replace(['*', '#', ':', ' '], '', $lineaOriginal);
-
-                        if (str_starts_with(strtolower($lineaLimpia), "título")) {
-                            $tituloFinal = trim(explode(':', $lineaOriginal, 2)[1] ?? '');
-                        } elseif (str_starts_with(strtolower($lineaLimpia), "hashtags")) {
-                            $hashtagsFinal = trim(explode(':', $lineaOriginal, 2)[1] ?? '');
-                        } elseif (str_starts_with(strtolower($lineaLimpia), "contenido")) {
-                            $tempContenido[] = trim(explode(':', $lineaOriginal, 2)[1] ?? '');
-                        } elseif (!empty($lineaOriginal) && !str_contains($lineaOriginal, '---')) {
-                            $tempContenido[] = $lineaOriginal;
-                        }
-                    }
-                    $contenidoFinal = implode("\n", $tempContenido);
-
-                } catch (\Exception $e) {
-                    Log::error("IA Error en Store: " . $e->getMessage());
-                }
-            }
-        }
 
         // Formateo automático de Hashtags (Asegura el símbolo #).
         if (!empty($hashtagsFinal)) {
@@ -109,7 +69,9 @@ class PublicacionController extends Controller
             'user_id'   => auth()->id(),
             'pieza_id'  => $pieza->id,
             'titulo'    => trim(str_replace(['*', '#'], '', $tituloFinal ?? "Publicación de {$pieza->nombre}")),
-            'contenido' => trim(str_replace(['**'], '', $contenidoFinal)),
+            'contenido' => $contenidoFinal === null
+                ? null
+                : trim(str_replace(['**'], '', $contenidoFinal)),
             'hashtags'  => $hashtagsFinal,
             'estado'    => 'borrador'
         ]);
@@ -155,10 +117,19 @@ class PublicacionController extends Controller
         $data = $request->validated();
         //Actualiza compos.
         $publicacion->update([
-            'titulo'    => $data['titulo'] ?? $publicacion->titulo,
-            'contenido' => $data['contenido'] ?? $publicacion->contenido,
+          /*  'titulo'    => $data['titulo'] ?? $publicacion->titulo,*/
+            'titulo' => array_key_exists('titulo', $data)
+                ? $data['titulo']
+                : $publicacion->titulo,
+            /*'contenido' => $data['contenido'] ?? $publicacion->contenido,*/
+            'contenido' => array_key_exists('contenido', $data)
+                ? $data['contenido']
+                : $publicacion->contenido,
             'estado'    => $data['estado'] ?? $publicacion->estado,
-            'hashtags'  => $data['hashtags'] ?? $publicacion->hashtags,
+           /* 'hashtags'  => $data['hashtags'] ?? $publicacion->hashtags,*/
+            'hashtags' => array_key_exists('hashtags', $data)
+                ? $data['hashtags']
+                : $publicacion->hashtags,
         ]);
         //Actualizar relación con redes sociales.
         if (isset($data['reds'])) {
