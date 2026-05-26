@@ -45,7 +45,7 @@ class UserSeeder extends Seeder
             $pathFinal = 'logos/logo_etc.svg';
             Storage::disk('public')->put($pathFinal, File::get(database_path($logoEtc)));
 
-            // ✅ CAMBIO 1: updateOrCreate con condición de búsqueda separada
+            //CAMBIO 1: updateOrCreate con condición de búsqueda separada
             $admin->perfil()->updateOrCreate(
                 ['user_id' => $admin->id],  // condición de búsqueda
                 [                           // datos a guardar
@@ -81,7 +81,7 @@ class UserSeeder extends Seeder
         ])->assignRole('Usuario');
 
         // ── Titufas ──────────────────────────────────────────────────
-        // ✅ CAMBIO 2: password hasheada con Hash::make
+        // CAMBIO 2: password hasheada con Hash::make
         $userTitufa = User::create([
             'nombre'            => 'Titufas',
             'email'             => 'titufas@gmail.com',
@@ -100,7 +100,7 @@ class UserSeeder extends Seeder
                 [
                     'tipo_documento' => 'nif',
                     'documento'      => '12345678T',
-                    'movil'          => '606999555',
+                    'movil'          => '606000779',
                     'logo'           => $pathDestino,
                     'descripcion'    => 'Diseño y elaboro fofuchas totalmente personalizadas...',
                     'web'            => 'http://www.titufasFofuchas.com',
@@ -135,7 +135,7 @@ class UserSeeder extends Seeder
                 'nombre'      => 'Mesa motivos Mariposa',
                 'descripcion' => 'Mesa rustica con sillas a juego, motivos coloridos y diseño mariposas.',
                 'imagen'      => 'mesaMariposa.jpeg',
-                'user'        => $userNormal
+                'user'        => $admin
             ],
             [
                 'nombre'      => 'Ducha en tronco arbol',
@@ -153,7 +153,7 @@ class UserSeeder extends Seeder
                 'nombre'      => 'Peldaños desiguales en madera.',
                 'descripcion' => 'Peldaños de escalera de madera con incrustaciones en nogal acabado exposi brillo.',
                 'imagen'      => 'peldanosEscalera.jpeg',
-                'user'        => $userNormal
+                'user'        => $admin
             ],
             [
                 'nombre'      => 'Fofucha Abanderada Infantil',
