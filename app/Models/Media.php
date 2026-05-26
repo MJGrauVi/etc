@@ -34,8 +34,8 @@ protected static function booted(){
 
     public function getUrlCompletaAttribute()
     {
-        // Esto convierte 'imagenes/ducha.jpg' en 'http://localhost/storage/imagenes/ducha.jpg'
-        return asset('storage/' . $this->path);
+        // Construyo la URL desde APP_URL para que funcione igual en local y Codespaces.
+        return rtrim(config('app.url'), '/') . '/storage/' . ltrim($this->path, '/');
     }
 
 }
