@@ -42,6 +42,7 @@ class UserController extends Controller
         $data['password'] = Hash::make($data['password']);
         //Crear usuario.
         $user = User::create($data);
+        $user->assignRole('Usuario');
 
         //>Crear perfil vacio asociado.
         $user->perfil()->create([
