@@ -13,14 +13,17 @@ class VerifyEmailCustom extends VerifyEmail
      */
     public function toMail($notifiable)
     {
-        $verificationUrl = URL::temporarySignedRoute(
+        $relativeVerificationUrl = URL::temporarySignedRoute(
             'verification.verify',
             now()->addMinutes(60),
             [
                 'id' => $notifiable->getKey(),
                 'hash' => sha1($notifiable->getEmailForVerification()),
-            ]
+            ],
+            false
         );
+
+        $verificationUrl = rtrim(config('app.url'), '/') . $relativeVerificationUrl;
 
         return (new MailMessage)
             ->subject('Verifica tu correo electrónico')

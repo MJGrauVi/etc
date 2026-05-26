@@ -37,7 +37,7 @@ Route::post('/login', [UserController::class, 'verify']);//ok
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
 
     // 1. Validar firma del enlace
-    if (! URL::hasValidSignature($request)) {
+    if (! URL::hasValidSignature($request, false)) {
         return response()->json(['message' => 'El enlace no es válido o ha expirado.'], 401);
     }
 
@@ -61,7 +61,7 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) 
     $user->markEmailAsVerified();
 
     return response()->json(['message' => 'Email verificado correctamente.']);
-})->middleware('signed')->name('verification.verify');
+})->middleware('signed:relative')->name('verification.verify');
 
 /************* Dentro del grupo las rutas que estan protegidas con middleware.*******************/
 //Cualquier peticion necesita token Bearer.
