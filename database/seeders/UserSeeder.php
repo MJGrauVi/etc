@@ -14,26 +14,17 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Usuarios aleatorios para rellenar la BD
-        $users = User::factory(5)->create()->each(function ($user) {
-            $user->assignRole('Usuario');
-        });
-
-        // Crea 10 piezas asignadas a usuarios aleatorios
-        Pieza::factory(10)->create([
-            'user_id' => $users->random()->id
-        ]);
-
         // ── Administradores ──────────────────────────────────────────
-        $admon = User::create([
+        $admin = User::create([
             'nombre'            => 'Admin',
             'email'             => 'admin@admin.com',
             'password'          => Hash::make('123456'),
             'email_verified_at' => now(),
         ])->assignRole('Administrador');
 
-        $admin = User::create([
-            'nombre'            => 'Admin-Etc',
+        // ── Administrador Etc-Apps ──────────────────────────────────────────
+        $admon = User::create([
+            'nombre'            => 'Admon-Etc',
             'email'             => 'etc-apps@proton.me',
             'password'          => Hash::make('123456'),
             'email_verified_at' => now(),
@@ -46,8 +37,8 @@ class UserSeeder extends Seeder
             Storage::disk('public')->put($pathFinal, File::get(database_path($logoEtc)));
 
             //CAMBIO 1: updateOrCreate con condición de búsqueda separada
-            $admin->perfil()->updateOrCreate(
-                ['user_id' => $admin->id],  // condición de búsqueda
+            $admon->perfil()->updateOrCreate(
+                ['user_id' => $admon->id],  // condición de búsqueda
                 [                           // datos a guardar
                     'logo' => $pathFinal,
                     'web'  => 'http://www.etc-apps.com',
@@ -73,12 +64,6 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ])->assignRole('Invitado'); // ⚠️ Este rol debe existir en RoleSeeder
 
-        $creador = User::create([
-            'nombre'            => 'Creador',
-            'email'             => 'creador@creador.com',
-            'password'          => Hash::make('123456'),
-            'email_verified_at' => now(),
-        ])->assignRole('Usuario');
 
         // ── Titufas ──────────────────────────────────────────────────
         // CAMBIO 2: password hasheada con Hash::make
@@ -117,24 +102,30 @@ class UserSeeder extends Seeder
                 'nombre'      => 'Escalera Artesanal de Color',
                 'descripcion' => 'Una pieza única pintada a mano y tronco lateral.',
                 'imagen'      => 'escaleraColor.jpeg',
-                'user'        => $creador
-            ],
-            [
-                'nombre'      => 'Lavabo madera con flores',
-                'descripcion' => 'Lavabo rústico con acabados florales incrustados en la madera.',
-                'imagen'      => 'lavaboColor.jpeg',
-                'user'        => $creador
+                'user'        => $invitado
             ],
             [
                 'nombre'      => 'Rinconera tronco',
                 'descripcion' => 'Sofa rinconera tallado en el tronco de un arbol.',
                 'imagen'      => 'rinconTronco.jpeg',
-                'user'        => $creador
+                'user'        => $invitado
+            ],
+            [
+                'nombre'      => 'Lavabo madera con flores',
+                'descripcion' => 'Lavabo rústico con acabados florales incrustados en la madera.',
+                'imagen'      => 'lavaboColor.jpeg',
+                'user'        => $admin
             ],
             [
                 'nombre'      => 'Mesa motivos Mariposa',
                 'descripcion' => 'Mesa rustica con sillas a juego, motivos coloridos y diseño mariposas.',
                 'imagen'      => 'mesaMariposa.jpeg',
+                'user'        => $admin
+            ],
+            [
+                'nombre'      => 'Peldaños desiguales en madera.',
+                'descripcion' => 'Peldaños de escalera de madera con incrustaciones en nogal acabado exposi brillo.',
+                'imagen'      => 'peldanosEscalera.jpeg',
                 'user'        => $admin
             ],
             [
@@ -147,13 +138,7 @@ class UserSeeder extends Seeder
                 'nombre'      => 'Lámpara de Suelo funcional',
                 'descripcion' => 'Iluminación cálida para salones con mesita y estante.',
                 'imagen'      => 'lamparaSuelo.jpeg',
-                'user'        => $invitado
-            ],
-            [
-                'nombre'      => 'Peldaños desiguales en madera.',
-                'descripcion' => 'Peldaños de escalera de madera con incrustaciones en nogal acabado exposi brillo.',
-                'imagen'      => 'peldanosEscalera.jpeg',
-                'user'        => $admin
+                'user'        => $userNormal
             ],
             [
                 'nombre'      => 'Fofucha Abanderada Infantil',
@@ -165,6 +150,12 @@ class UserSeeder extends Seeder
                 'nombre'      => 'Focucha Gitanilla',
                 'descripcion' => 'Focucha realizada en gomaeva de la comparsa contrabandista.',
                 'imagen'      => 'gitanilla1.jpeg',
+                'user'        => $userTitufa
+            ],
+            [
+                'nombre'      => 'Fofucho Minion',
+                'descripcion' => 'Muñeco realizado en gomaeva..',
+                'imagen'      => 'miniMarron.jpeg',
                 'user'        => $userTitufa
             ]
         ];
