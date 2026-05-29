@@ -19,6 +19,12 @@ class FacebookPublicacionController extends Controller
         $publicacion->loadMissing('pieza.medias', 'reds');
         $this->authorize('update', $publicacion);
 
+        if ($publicacion->estado !== 'pendiente') {
+            return response()->json([
+                'message' => 'Revisa la publicacion y cambia su estado a Lista para publicar antes de publicarla en Facebook.',
+            ], 422);
+        }
+
         $message = $request->input('mensaje') ?: $this->buildMessage($publicacion);
 
         try {
