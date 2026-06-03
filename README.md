@@ -112,7 +112,7 @@ Administrador ETC: etc-apps@proton.me
 Usuario: usuario@usuario.com
 Titufas: titufas@gmail.com
 Invitado: invitado@invitado.com
-Contrasena: 123456
+Contrasena: ******
 ```
 
 ## Email Y Verificacion
