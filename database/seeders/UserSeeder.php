@@ -41,6 +41,7 @@ class UserSeeder extends Seeder
                 ['user_id' => $admon->id],  // condición de búsqueda
                 [                           // datos a guardar
                     'logo' => $pathFinal,
+                    'descripcion' => 'ETC Apps desarrolla soluciones web orientadas a pequeños negocios, artesanos y profesionales que necesitan mejorar su presencia digital de forma sencilla. La plataforma ayuda a gestionar piezas, generar contenido con inteligencia artificial y preparar publicaciones para redes sociales desde un único entorno.',
                     'web'  => 'http://www.etc-apps.com',
                     'redes_sociales' => [
                         'facebook' => 'https://facebook.com/etcApps'
@@ -62,7 +63,7 @@ class UserSeeder extends Seeder
             'email'             => 'invitado@invitado.com',
             'password'          => Hash::make('123456'),
             'email_verified_at' => now(),
-        ])->assignRole('Invitado'); // ⚠️ Este rol debe existir en RoleSeeder
+        ])->assignRole('Invitado'); // Este rol debe existir en RoleSeeder
 
 
         // ── Titufas ──────────────────────────────────────────────────
@@ -87,7 +88,7 @@ class UserSeeder extends Seeder
                     'documento'      => '12345678T',
                     'movil'          => '606000779',
                     'logo'           => $pathDestino,
-                    'descripcion'    => 'Diseño y elaboro fofuchas totalmente personalizadas...',
+                    'descripcion'    => 'En titufas fofuchas creamos muñecos personalizados con los rasgos, deporte, profesión o cualquier rasgo que identifique a la persona que quieres agasajar, solo tienes que enviarnos unas imagenes y tendrás tu muñeco personalizado. ',
                     'web'            => 'http://www.titufasFofuchas.com',
                     'redes_sociales' => [
                         'facebook' => 'https://facebook.com/titufasFofuchas'
@@ -150,6 +151,7 @@ class UserSeeder extends Seeder
                 'nombre'      => 'Focucha Gitanilla',
                 'descripcion' => 'Focucha realizada en gomaeva de la comparsa contrabandista.',
                 'imagen'      => 'gitanilla1.jpeg',
+                'imagenes'    => ['gitanilla1.jpeg', 'gitanillaLateral.jpeg'],
                 'user'        => $userTitufa
             ],
             [
@@ -167,22 +169,26 @@ class UserSeeder extends Seeder
                 'user_id'     => $pieza['user']->id,
             ]);
 
-            $origen  = database_path('seeders/images/fotos/' . $pieza['imagen']);
-            $destino = 'imagenes/' . $pieza['imagen'];
+            $imagenes = $pieza['imagenes'] ?? [$pieza['imagen']];
 
-            if (File::exists($origen)) {
-                Storage::disk('public')->put($destino, File::get($origen));
-            } else {
-                dump("Imagen no encontrada en: " . $origen);
+            foreach ($imagenes as $indice => $imagen) {
+                $origen  = database_path('seeders/images/fotos/' . $imagen);
+                $destino = 'imagenes/' . $imagen;
+
+                if (File::exists($origen)) {
+                    Storage::disk('public')->put($destino, File::get($origen));
+                } else {
+                    dump("Imagen no encontrada en: " . $origen);
+                }
+
+                Media::create([
+                    'pieza_id'       => $nuevaPieza->id,
+                    'nombre_original' => $imagen,
+                    'tipo'           => 'imagen',
+                    'path'           => $destino,
+                    'es_portada'     => $indice === 0,
+                ]);
             }
-
-            Media::create([
-                'pieza_id'       => $nuevaPieza->id,
-                'nombre_original' => $pieza['imagen'],
-                'tipo'           => 'imagen',
-                'path'           => $destino,
-                'es_portada'     => true,
-            ]);
         }
     }
 }
