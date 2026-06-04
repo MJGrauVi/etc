@@ -83,7 +83,7 @@ Este comando crea la carpeta `vendor`, necesaria para poder usar Laravel y Sail.
 
 ```text
 API:     http://localhost:8095/api
-Storage: http://localhost:8095/storage
+Storage: http://localhost:8095/storage/imagenes/gitanilla1.jpeg
 Mailpit: http://localhost:8025
 ```
 
@@ -110,8 +110,7 @@ Despues de ejecutar los seeders, se crean usuarios de demostracion:
 Administrador: admin@admin.com
 Administrador ETC: etc-apps@proton.me
 Usuario: usuario@usuario.com
-Titufas: titufas@gmail.com
-Invitado: invitado@invitado.com
+Usuario: titufas@gmail.com
 Contrasena: ******
 ```
 
