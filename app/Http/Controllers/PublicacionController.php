@@ -298,8 +298,6 @@ class PublicacionController extends Controller
 
             $publicacion->refresh();
 
-            Log::info("Publicación generada ID {$publicacion->id} para pieza {$pieza->nombre}");
-
             return response()->json([
                 'success' => true,
                 'message' => 'Publicación generada y guardada como borrador',

@@ -157,7 +157,6 @@ class UserController extends Controller
                 "message" => "No autorizado."
             ], 403);
         }*/
-       // dd($user);
        $this->authorize('delete', $user);
         $user->delete();
         return response([

@@ -178,7 +178,7 @@ class UserSeeder extends Seeder
                 if (File::exists($origen)) {
                     Storage::disk('public')->put($destino, File::get($origen));
                 } else {
-                    dump("Imagen no encontrada en: " . $origen);
+                    $this->command?->warn("Imagen no encontrada en: " . $origen);
                 }
 
                 Media::create([
