@@ -90,6 +90,13 @@ class MediaController extends Controller
 
         // Guardamos el archivo en storage/app/public/imagenes
         $path = $file->store('imagenes', 'public');
+        // Evitamos error si $path =0;
+        if (!$path) {
+            return response()->json([
+                'error' => true,
+                'message' => 'No se pudo guardar la imagen en storage.'
+            ], 500);
+        }
 
         // Creamos el registro en la tabla medias
         $media = $pieza->medias()->create([

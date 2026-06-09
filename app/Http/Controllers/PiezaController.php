@@ -74,7 +74,13 @@ class PiezaController extends Controller
                 //Guardamos el archivo físicamente en 'storage/app/public/imagenes.
                 //El método 'store' devuelve la ruta generada automáticamente.
                 $path = $file->store('imagenes', 'public');
-
+                //Evitamos path= 0;
+                if (!$path) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'No se pudo guardar la imagen en storage.'
+                    ], 500);
+                }
                 //Creamos el registro en la tabla 'medias' usando la relación del modelo, asocia pieza_id automaticamente.
                 $pieza->medias()->create([
                     'nombre_original' => $file->getClientOriginalName(),
