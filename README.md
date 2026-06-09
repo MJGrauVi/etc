@@ -72,8 +72,15 @@ Este comando crea la carpeta `vendor`, necesaria para poder usar Laravel y Sail.
 ```bash
 ./vendor/bin/sail artisan storage:link
 ```
+10. Revisar permisos de storage:
 
-10. Limpiar cache de configuracion:
+```bash
+./vendor/bin/sail shell
+chown -R sail:root storage/app/public
+chmod -R 775 storage/app/public
+```
+
+11. Limpiar cache de configuracion:
 
 ```bash
 ./vendor/bin/sail artisan optimize:clear
@@ -161,6 +168,12 @@ php artisan migrate:fresh --seed
 
 ```bash
 php artisan storage:link
+```
+9. Ajustar permisos de storage:
+
+```bash
+chown -R sail:root storage/app/public
+chmod -R 775 storage/app/public
 ```
 
 ## Comandos Utiles
