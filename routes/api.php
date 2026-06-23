@@ -111,6 +111,7 @@ Route::middleware('auth:sanctum', 'verified')->group(function () {
     Route::get('/publicacion/{publicacion}', [PublicacionController::class, 'show']);
     Route::put('/publicacion/{publicacion}', [PublicacionController::class, 'update']);
     Route::delete('publicacion/{publicacion}', [PublicacionController::class, 'destroy']);
+    Route::get('/publicacion/{publicacion}/facebook/destination', [FacebookPublicacionController::class, 'destination']);
     Route::post('/publicacion/{publicacion}/facebook', [FacebookPublicacionController::class, 'publish']);
 
     // Redes asociadas a una publicación (N:N)

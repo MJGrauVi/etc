@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             MediaSeeder::class,
             PiezaSeeder::class,
             RedSeeder::class,
+            FacebookPageSeeder::class,
             PublicacionRedSeeder::class
 
         ]);

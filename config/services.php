@@ -41,6 +41,7 @@ return [
     'facebook' => [
         'page_id' => env('FACEBOOK_PAGE_ID'),
         'page_access_token' => env('FACEBOOK_PAGE_ACCESS_TOKEN'),
+        'demo_page_name' => env('FACEBOOK_DEMO_PAGE_NAME', 'Pagina demo'),
         'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v25.0'),
     ],
 

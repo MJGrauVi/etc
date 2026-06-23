@@ -83,6 +83,12 @@ class User extends Authenticatable implements MustVerifyEmail
     public function perfil(): HasOne{
         return $this->hasOne(Perfil::class);
     }
+    public function facebookPages(): HasMany{
+        return $this->hasMany(FacebookPage::class);
+    }
+    public function defaultFacebookPage(): HasOne{
+        return $this->hasOne(FacebookPage::class)->where('is_default', true);
+    }
     public function hasRole(string $rol): bool
     {
         return $this->roles()->where('name', $rol)->exists();

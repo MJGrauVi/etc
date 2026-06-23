@@ -15,6 +15,7 @@ class PublishFacebookRequest extends FormRequest
     {
         return [
             'mensaje' => 'nullable|string|max:5000',
+            'confirm_demo' => 'sometimes|boolean',
         ];
     }
 }

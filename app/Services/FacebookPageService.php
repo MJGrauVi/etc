@@ -9,18 +9,42 @@ class FacebookPageService
 {
     public function ensureConfigured(): void
     {
-        if (empty(config('services.facebook.page_id')) || empty(config('services.facebook.page_access_token'))) {
-            throw new RuntimeException('Faltan FACEBOOK_PAGE_ID o FACEBOOK_PAGE_ACCESS_TOKEN en el archivo .env.');
+        $this->ensureCredentials(
+            config('services.facebook.page_id'),
+            config('services.facebook.page_access_token')
+        );
+    }
+
+    public function ensureCredentials(?string $pageId, ?string $accessToken): void
+    {
+        if (empty($pageId) || empty($accessToken)) {
+            throw new RuntimeException('Faltan credenciales de Facebook para publicar.');
         }
     }
 
-    public function publishPhoto(string $imagePath, string $fileName, string $message): array
+    public function demoCredentials(): array
     {
-        $pageId = config('services.facebook.page_id');
-        $accessToken = config('services.facebook.page_access_token');
+        return [
+            'source' => 'demo',
+            'page_id' => config('services.facebook.page_id'),
+            'page_name' => config('services.facebook.demo_page_name', 'Pagina demo'),
+            'access_token' => config('services.facebook.page_access_token'),
+            'requires_confirmation' => true,
+        ];
+    }
+
+    public function publishPhoto(
+        string $imagePath,
+        string $fileName,
+        string $message,
+        ?string $pageId = null,
+        ?string $accessToken = null
+    ): array {
+        $pageId = $pageId ?: config('services.facebook.page_id');
+        $accessToken = $accessToken ?: config('services.facebook.page_access_token');
         $version = config('services.facebook.graph_version', 'v25.0');
 
-        $this->ensureConfigured();
+        $this->ensureCredentials($pageId, $accessToken);
 
         $version = ltrim($version, '/');
         $url = "https://graph.facebook.com/{$version}/{$pageId}/photos";
