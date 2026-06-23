@@ -67,7 +67,7 @@ Este comando crea la carpeta `vendor`, necesaria para poder usar Laravel y Sail.
 ./vendor/bin/sail artisan migrate:fresh --seed
 ```
 
-9. Crear el enlace publico de storage:
+9. Crear el enlace público de storage:
 
 ```bash
 ./vendor/bin/sail artisan storage:link
@@ -80,7 +80,7 @@ chown -R sail:root storage/app/public
 chmod -R 775 storage/app/public
 ```
 
-11. Limpiar cache de configuracion:
+11. Limpiar cache de configuración:
 
 ```bash
 ./vendor/bin/sail artisan optimize:clear
@@ -105,13 +105,13 @@ FACEBOOK_PAGE_ACCESS_TOKEN=
 FACEBOOK_GRAPH_VERSION=v25.0
 ```
 
-`GEMINI_API_KEY` permite generar contenido textual con IA a partir de imagenes.
+`GEMINI_API_KEY` permite generar contenido textual con IA a partir de imágenes.
 
-`FACEBOOK_PAGE_ID` y `FACEBOOK_PAGE_ACCESS_TOKEN` permiten publicar en una pagina de Facebook configurada para la demo.
+`FACEBOOK_PAGE_ID` y `FACEBOOK_PAGE_ACCESS_TOKEN` permiten publicar en una página de Facebook configurada para la demo.
 
 ## Credenciales De Prueba
 
-Despues de ejecutar los seeders, se crean usuarios de demostracion:
+Después de ejecutar los seeders, se crean usuarios de demostración:
 
 ```text
 Administrador: admin@admin.com
@@ -123,22 +123,22 @@ Contrasena: ******
 
 ## Email Y Verificacion
 
-En desarrollo se usa Mailpit para revisar correos enviados por la aplicacion.
+En desarrollo se usa Mailpit para revisar correos enviados por la aplicación.
 
 ```text
 http://localhost:8025
 ```
 
-Si se trabaja en Codespaces, el puerto de Mailpit debe hacerse publico para poder abrir los enlaces de verificacion desde el navegador.
+Si se trabaja en Codespaces, el puerto de Mailpit debe hacerse público para poder abrir los enlaces de verificación desde el navegador.
 
 ## Despliegue/Demo En GitHub Codespaces
 
-Codespaces se usa como entorno remoto de demostracion, no como despliegue de produccion definitivo.
+Codespaces se usa como entorno remoto de demostración, no como despliegue de produccion definitivo.
 
 1. Abrir el repositorio backend en Codespaces.
 2. Esperar a que arranque el contenedor.
-3. Hacer publico el puerto del backend, normalmente `8095`.
-4. Copiar la URL publica del puerto `8095`.
+3. Hacer público el puerto del backend, normalmente `8095`.
+4. Copiar la URL pública del puerto `8095`.
 5. Ajustar `.env`:
 
 ```env
@@ -146,7 +146,7 @@ APP_URL=https://tu-codespace-8095.app.github.dev
 FRONTEND_URL=https://tu-codespace-5173.app.github.dev
 ```
 
-6. Limpiar cache:
+6. Limpiar caché:
 
 ```bash
 php artisan optimize:clear
@@ -184,7 +184,7 @@ Ver rutas:
 ./vendor/bin/sail artisan route:list
 ```
 
-Limpiar cache:
+Limpiar caché:
 
 ```bash
 ./vendor/bin/sail artisan optimize:clear
@@ -202,7 +202,7 @@ Apagar contenedores:
 ./vendor/bin/sail down
 ```
 
-Reiniciar todo eliminando volumenes:
+Reiniciar todo eliminando volúmenes:
 
 ```bash
 ./vendor/bin/sail down -v
@@ -211,9 +211,8 @@ Reiniciar todo eliminando volumenes:
 ./vendor/bin/sail artisan storage:link
 ```
 
-## Notas
-
-- Las imagenes de ejemplo versionadas estan en `database/seeders/images`.
-- Los seeders copian esas imagenes a `storage/app/public`.
-- La URL publica de cada imagen se genera con `APP_URL`.
+##m
+- Las imágenes de ejemplo versionadas están en `database/seeders/images`.
+- Los seeders copian esas imágenes a `storage/app/public`.
+- La URL pública de cada imagen se genera con `APP_URL`.
 - El frontend consume la API mediante `VITE_API_URL`.
